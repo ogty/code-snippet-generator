@@ -1,0 +1,36 @@
+╭─ abstract/code_snippet.py ───────────────────────────────────────────────────────────────────────╮
+│  23 ▓▓▓▓▓ 23 changes: 23 additions & 0 deletion                                                  │
+├─────────────┬────────────────────────────────────────────────────────────────────────────────────┤
+│  ...    ... │   @@ -0,0 +1,23 @@                                                                 │
+├─────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│           1 │ + from abc import ABCMeta, abstractclassmethod                                     │
+│           2 │ +                                                                                  │
+│           3 │ +                                                                                  │
+│           4 │ + class CodeSnippetFrameInterface(metaclass=ABCMeta):                              │
+│           5 │ +                                                                                  │
+│           6 │ +     @abstractclassmethod                                                         │
+│           7 │ +     def set_initial_line(self) -> None:                                          │
+│           8 │ +         raise NotImplementedError                                                │
+│           9 │ +                                                                                  │
+│          10 │ +     @abstractclassmethod                                                         │
+│          11 │ +     def set_code(self) -> None:                                                  │
+│          12 │ +         raise NotImplementedError                                                │
+│          13 │ +                                                                                  │
+│          14 │ +     @abstractclassmethod                                                         │
+│          15 │ +     def set_final_line(self) -> None:                                            │
+│          16 │ +         raise NotImplementedError                                                │
+│          17 │ +                                                                                  │
+│          18 │ +                                                                                  │
+│          19 │ + class CodeSnippetInterface(metaclass=ABCMeta):                                   │
+│          20 │ +                                                                                  │
+│          21 │ +     @abstractclassmethod                                                         │
+│          22 │ +     def generate(self) -> str:                                                   │
+╰─────────────┴────────────────────────────────────────────────────────────────────────────────────╯
+┌── command.sh ────────────────────────────────────────────────────────────────────────────────────┐
+├──────────────────────────────────────────────────────────────────────────────────────────────────┤
+│  terminal                                                                                        │
+│  npm create svelte@latest my-app                                                                 │
+│  cd my-app                                                                                       │
+│  npm install                                                                                     │
+│  npm run dev -- --open                                                                           │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯

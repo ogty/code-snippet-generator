@@ -87,4 +87,4 @@ class SimpleSnippet(CodeSnippetOperator):
         frame.set_code(file_content)
         frame.set_final_line()
 
-        return ''.join(frame.lines)
+        return '\n'.join(frame.lines)
