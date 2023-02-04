@@ -2,9 +2,10 @@ from typing import List, Dict
 
 from abstract.code_snippet import CodeSnippetInterface, CodeSnippetFrameInterface
 from settings import (
-    MINUS,
     PLUS,
+    MINUS,
     SPACE,
+    NEWLINE,
     ADDITION_PATTERN,
     DELETION_PATTERN,
     WELL_KNOWN_SYMBOLS_PATTERN,
@@ -289,4 +290,4 @@ class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
         frame.set_title(self.format_title(changes))
         frame.set_diff_sections(diff_sections)
         frame.set_final_line()
-        return '\n'.join(frame.lines)
+        return NEWLINE.join(frame.lines)

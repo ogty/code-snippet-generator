@@ -1,7 +1,7 @@
 from typing import List
 
 from abstract.code_snippet import CodeSnippetFrameInterface
-from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, SPACE
+from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, SPACE, NEWLINE
 from schemas.snippet import SnippetConfig
 from libs.operator import CodeSnippetOperator, CodeSnippetFrameOperator
 
@@ -87,4 +87,4 @@ class SimpleSnippet(CodeSnippetOperator):
         frame.set_code(file_content)
         frame.set_final_line()
 
-        return '\n'.join(frame.lines)
+        return NEWLINE.join(frame.lines)

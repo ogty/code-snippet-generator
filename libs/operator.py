@@ -6,7 +6,7 @@ from settings import ENCODING, READ, NAMED_FORMAT_PATTERN
 
 class CodeSnippetFrameOperator:
 
-    def fill_padding(self, word: str, template: str, character: str, name: str = '') -> str:
+    def fill_padding(self, word: str, template: str, character: str, name: str) -> str:
         template_length = self.get_template_length(template=template)
         content_length = template_length + len(word)
         padding_width = self.max_frame_width - content_length

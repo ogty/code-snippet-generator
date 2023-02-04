@@ -5,6 +5,7 @@ READ = 'r'
 WRITE = 'w'
 ENCODING = "utf-8"
 
+NEWLINE = '\n'
 SPACE = ' '
 PLUS = '+'
 MINUS = '-'
