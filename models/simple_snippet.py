@@ -14,7 +14,7 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         self.file_name = config["file_name"]
         self.max_frame_width = config["max_frame_width"]
 
-        self.initial_line_template = self.process_string("┌─{language}─{file_name}─┐")
+        self.initial_line_template = self.process_string("╭─{language}─{file_name}─╮")
         self.header_bottom_line_template = self.process_string("├{padding}┤")
         self.code_line_template = self.process_string("│2 {padding}2 │")
         self.final_line_template = self.process_string("╰{padding}╯")
@@ -44,27 +44,27 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         for code in codes:
             formatted = self.fill_padding(
                 word=code,
+                name="padding",
                 template=self.code_line_template,
                 character=SPACE,
-                name="padding",
             )
             self.lines.append(formatted)
 
     def set_header_bottom_line(self) -> None:
         formatted = self.fill_padding(
             word=EMPTY,
+            name="padding",
             template=self.header_bottom_line_template,
             character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
-            name="padding",
         )
         self.lines.append(formatted)
 
     def set_final_line(self) -> None:
         formatted = self.fill_padding(
             word=EMPTY,
+            name="padding",
             template=self.final_line_template,
             character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
-            name="padding",
         )
         self.lines.append(formatted)
 
