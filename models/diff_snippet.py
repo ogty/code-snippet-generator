@@ -204,7 +204,7 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                 tmp_array_for_a = []
                 tmp_array_for_b = []
 
-                result.append([item_a, item_b])
+                result.append([item_b, item_a])
                 continue
             tmp_array_for_a.append(item_b)
             tmp_array_for_b.append(item_a)
