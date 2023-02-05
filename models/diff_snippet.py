@@ -267,9 +267,9 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             value = abs(addition_index[0] - deletion_index[0]) + count
 
             if addition_index[0] < deletion_index[0]:
-                deletion_start = deletion_line_numbers[deletion_index[0]] - value
+                deletion_start = deletion_line_numbers[deletion_index[0] - value]
                 deletion_end = deletion_start + len(deletion_index)
-                addition_start = addition_line_numbers[addition_index[0]] - count
+                addition_start = addition_line_numbers[addition_index[0] - count]
                 addition_end = addition_start + len(addition_index)
 
                 for index, line_number in enumerate([*range(deletion_start, deletion_end)]):
@@ -281,9 +281,9 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                 for index, line_number in enumerate([*range(addition_start, addition_end)]):
                     deletion_line_numbers.insert(cloned.index(line_number - index + count), None)
             else:
-                addition_start = addition_line_numbers[addition_index[0]] - value
+                addition_start = addition_line_numbers[addition_index[0] - value]
                 addition_end = addition_start + len(addition_index)
-                deletion_start = deletion_line_numbers[deletion_index[0]] - count
+                deletion_start = deletion_line_numbers[deletion_index[0] - count]
                 deletion_end = deletion_start + len(deletion_index)
 
                 for index, line_number in enumerate([*range(addition_start, addition_end)]):
@@ -297,6 +297,8 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
 
             count += 1
 
+        addition_line_numbers.append(0)
+        deletion_line_numbers.append(0)
         line_numbers = self.generate_new_code_lines(
             array_a=addition_line_numbers,
             array_b=deletion_line_numbers,
@@ -312,7 +314,7 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                 code = code[0].replace(PLUS, PLUS + SPACE).replace(MINUS, MINUS + SPACE) + code[1:]
 
             self.set_code(
-                code=(code if code[0].startswith(SPACE) else code),
+                code=(SPACE + code if code[0].startswith(SPACE) else code),
                 before_line_number=before_line_number.rjust(number_digits, SPACE),
                 after_line_number=after_line_number.rjust(number_digits, SPACE),
                 prefix=EMPTY
