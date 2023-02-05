@@ -157,28 +157,27 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         addition_start = start_end["addition_start"]
         deletion_start = start_end["deletion_start"]
 
-        result = []
+        diff = []
         count_for_deletion = deletion_start
         count_for_addition = addition_start
         for code in codes:
-            if not code or code[0] == ' ':
-                result.append([count_for_deletion, count_for_addition, code])
+            if not code or code[0] == SPACE:
+                diff.append([str(count_for_deletion), str(count_for_addition), code])
                 count_for_deletion += 1
                 count_for_addition += 1
                 continue
 
             prefix = code[0]
             if prefix == PLUS:
-                result.append([None, count_for_addition, code])
+                diff.append([None, str(count_for_addition), code])
                 count_for_addition += 1
-            else:
-                result.append([count_for_deletion, None, code])
-                count_for_deletion += 1
+                continue
+            diff.append([str(count_for_deletion), None, code])
+            count_for_deletion += 1
 
-        for item in result:
-            before_line_number = SPACE if item[0] is None else str(item[0])
-            after_line_number = SPACE if item[1] is None else str(item[1])
-            code = item[2]
+        for before_line_number, after_line_number, code in diff:
+            before_line_number = SPACE if before_line_number is None else before_line_number
+            after_line_number = SPACE if after_line_number is None else after_line_number
 
             if not code:
                 code = SPACE
