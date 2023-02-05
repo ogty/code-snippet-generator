@@ -297,13 +297,6 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
 
             count += 1
 
-        code_prefixes = []
-        for code in codes:
-            if code:
-                code_prefixes.append(SPACE + code[0])
-                continue
-            code_prefixes.append(SPACE * 2)
-
         line_numbers = self.generate_new_code_lines(
             array_a=addition_line_numbers,
             array_b=deletion_line_numbers,
