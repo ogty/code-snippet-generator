@@ -16,7 +16,7 @@ if __name__ == "__main__":
     config = DiffSnippetConfig(
         file_name=file_name,
         file_path=file_path,
-        language='',
+        language="",
         # max_frame_width=100,
         max_frame_width=terminal_width,
     )
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     config = SnippetConfig(
         file_name="command.sh",
         file_path="./samples/command.sh",
-        language='',
+        language="",
         # max_frame_width=100,
         max_frame_width=terminal_width,
     )

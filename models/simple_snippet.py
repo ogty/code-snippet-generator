@@ -1,13 +1,12 @@
 from typing import List
 
 from abstract.code_snippet import CodeSnippetFrameInterface
-from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, SPACE, NEWLINE, EMPTY
-from schemas.snippet import SnippetConfig
 from libs.operator import CodeSnippetOperator, CodeSnippetFrameOperator
+from schemas.snippet import SnippetConfig
+from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, SPACE, NEWLINE, EMPTY
 
 
 class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
-
     def __init__(self, config: SnippetConfig) -> None:
         self.lines = []
 
@@ -71,7 +70,6 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
 
 
 class SimpleSnippet(CodeSnippetOperator):
-
     def __init__(self, config: SnippetConfig) -> None:
         self.config = config
         self.file_path = config["file_path"]

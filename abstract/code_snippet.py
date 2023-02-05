@@ -2,7 +2,6 @@ from abc import ABCMeta, abstractclassmethod
 
 
 class CodeSnippetFrameInterface(metaclass=ABCMeta):
-
     @abstractclassmethod
     def set_initial_line(self) -> None:
         raise NotImplementedError
@@ -17,7 +16,6 @@ class CodeSnippetFrameInterface(metaclass=ABCMeta):
 
 
 class CodeSnippetInterface(metaclass=ABCMeta):
-
     @abstractclassmethod
     def generate(self) -> str:
         raise NotImplementedError

@@ -5,7 +5,6 @@ from settings import ENCODING, READ, NAMED_FORMAT_PATTERN, EMPTY
 
 
 class CodeSnippetFrameOperator:
-
     def fill_padding(self, word: str, template: str, character: str, name: str) -> str:
         template_length = self.get_template_length(template=template)
         content_length = template_length + len(word)
@@ -38,9 +37,8 @@ class CodeSnippetFrameOperator:
 
 
 class CodeSnippetOperator:
-
     @classmethod
     def get_file_content(self, file_path: str) -> List[str]:
         absolute_path = os.path.abspath(file_path)
-        with open(absolute_path, READ, encoding=ENCODING) as diff_file:
-            return [line.rstrip() for line in diff_file.readlines()]
+        with open(absolute_path, READ, encoding=ENCODING) as file:
+            return [line.rstrip() for line in file.readlines()]
