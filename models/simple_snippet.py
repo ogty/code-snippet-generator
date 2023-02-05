@@ -1,7 +1,7 @@
 from typing import List
 
 from abstract.code_snippet import CodeSnippetFrameInterface
-from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, SPACE, NEWLINE
+from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, SPACE, NEWLINE, EMPTY
 from schemas.snippet import SnippetConfig
 from libs.operator import CodeSnippetOperator, CodeSnippetFrameOperator
 
@@ -20,14 +20,15 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         self.code_line_template = self.process_string("│2 {padding}2 │")
         self.final_line_template = self.process_string("╰{padding}╯")
 
+    @classmethod
     def add_padding(self, string: str, n: int = 1) -> str:
         padding = SPACE * n
         return padding + string + padding
 
     def set_initial_line(self) -> None:
         template = self.initial_line_template
-        language = self.add_padding(self.language) if self.language else ''
-        file_name = self.add_padding(self.file_name) if self.file_name else ''
+        language = self.add_padding(self.language) if self.language else EMPTY
+        file_name = self.add_padding(self.file_name) if self.file_name else EMPTY
 
         template_length = self.get_template_length(template=template)
         content_length = template_length + len(language + file_name)
@@ -52,7 +53,7 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
 
     def set_header_bottom_line(self) -> None:
         formatted = self.fill_padding(
-            word='',
+            word=EMPTY,
             template=self.header_bottom_line_template,
             character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
             name="padding",
@@ -61,7 +62,7 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
 
     def set_final_line(self) -> None:
         formatted = self.fill_padding(
-            word='',
+            word=EMPTY,
             template=self.final_line_template,
             character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
             name="padding",
@@ -73,10 +74,7 @@ class SimpleSnippet(CodeSnippetOperator):
 
     def __init__(self, config: SnippetConfig) -> None:
         self.config = config
-        self.language = config["language"]
-        self.file_name = config["file_name"]
         self.file_path = config["file_path"]
-        self.max_frame_width = config["max_frame_width"]
 
     def generate(self) -> str:
         file_content = self.get_file_content(self.file_path)

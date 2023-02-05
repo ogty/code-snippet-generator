@@ -5,6 +5,7 @@ from settings import (
     PLUS,
     MINUS,
     SPACE,
+    EMPTY,
     NEWLINE,
     ADDITION_PATTERN,
     DELETION_PATTERN,
@@ -34,17 +35,36 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         self.code_line_template = self.process_string("│2 {before}4 {after} │{prefix} {code}2 │")
         self.final_line_template = self.process_string("╰13─┴{padding}╯")
 
+    @classmethod
     def convert_dict_values_to_int(self, data: Dict[str, str]) -> Dict[str, int]:
         for key in data:
             data[key] = int(0 if data[key] is None else data[key])
         return data
 
+    @classmethod
     def all_zeros(self, data: List[int]) -> bool:
         return all(x == 0 for x in data)
 
+    @classmethod
+    def split_string(self, string: str, n: int) -> List[str]:
+        return [string[i:i + n] for i in range(0, len(string), n)]
+
+    @classmethod
+    def split_array(self, array: List[int]) -> List[List[int]]:
+        result = []
+        sub_array = [array[0]]
+        for i in range(1, len(array)):
+            if array[i] == array[i-1] + 1:
+                sub_array.append(array[i])
+            else:
+                result.append(sub_array)
+                sub_array = [array[i]]
+        result.append(sub_array)
+        return result
+
     def set_final_line(self) -> None:
         formatted = self.fill_padding(
-            word='',
+            word=EMPTY,
             template=self.final_line_template,
             character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
             name="padding",
@@ -102,14 +122,25 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         ))
 
         if padding_width < 0:
+            is_first_output = True
             remainder_codes = self.split_string(code, max_remainder_width)
             for remainder_code in remainder_codes:
+                before = SPACE * self.number_digits
+                after = SPACE * self.number_digits
+                remainder_prefix = (SPACE * 2)
+
+                if is_first_output:
+                    remainder_prefix = prefix
+                    before = before_line_number
+                    after = after_line_number
+                    is_first_output = False
+
                 padding_width = max_remainder_width - len(remainder_code)
                 padding = padding_width * SPACE
                 formatted = template.format(
-                    before=SPACE * self.number_digits,
-                    after=SPACE * self.number_digits,
-                    prefix=(SPACE * 2),
+                    before=before,
+                    after=after,
+                    prefix=remainder_prefix,
                     code=(remainder_code + padding),
                 )
                 self.lines.append(formatted)
@@ -124,9 +155,6 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         )
         self.lines.append(formatted)
 
-    def split_string(self, string: str, n: int) -> List[str]:
-        return [string[i:i + n] for i in range(0, len(string), n)]
-
     def set_diff_sections(self, diff_sections: List[List[str]]) -> None:
         for index, diff_section in enumerate(diff_sections):
             is_start = True if not index else False
@@ -135,6 +163,53 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             self.set_section_title(section_title=diff_section[0], is_start=is_start)
             self.set_section_connecting_line()
             self.set_diff_section(diff_section=diff_section)
+
+    def swap(self, array: List[int | None]) -> List[int | None]:
+        is_none_start = array[0] is None
+        count = 0
+        result = []
+        if is_none_start:
+            for item in array:
+                if item is not None:
+                    result.insert(count, item)
+                    count += 1
+                    continue
+                result.append(None)
+            return result
+        for item in array:
+            if item is None:
+                result.insert(count, None)
+                count += 1
+                continue
+            result.append(item)
+        return result
+
+    def generate_new_code_lines(
+        self,
+        array_a: List[int | None],
+        array_b: List[int | None]
+    ) -> list:
+        result = []
+
+        tmp_array_for_a = []
+        tmp_array_for_b = []
+        for item_a, item_b in zip(array_a, array_b):
+            if isinstance(item_a, int) and isinstance(item_b, int):
+                if tmp_array_for_a or tmp_array_for_b:
+                    tmp_array_for_a = self.swap(tmp_array_for_a)
+                    tmp_array_for_b = self.swap(tmp_array_for_b)
+                    for a, b in zip(tmp_array_for_a, tmp_array_for_b):
+                        result.append([a, b])
+
+                tmp_array_for_a = []
+                tmp_array_for_b = []
+
+                result.append([item_a, item_b])
+                continue
+            tmp_array_for_a.append(item_b)
+            tmp_array_for_b.append(item_a)
+
+        return result
 
     def set_diff_section(self, diff_section: List[str]) -> None:
         number_digits = self.number_digits
@@ -166,7 +241,7 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                 after = str(line_number).rjust(number_digits, SPACE)
                 before_after = [before, after]
 
-                code = code[0].replace(prefix, '') + code[1:]
+                code = code[0].replace(prefix, EMPTY) + code[1:]
                 self.set_code(
                     code=code,
                     before_line_number=before_after[not is_addition],
@@ -181,14 +256,73 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                 tmp(addition_start, addition_end)
             return
 
-        # TODO: Display line number
+        addition_line_numbers = [*range(addition_start, addition_end + addition_start)]
+        deletion_line_numbers = [*range(deletion_start, deletion_end + deletion_start)]
+
+        addition_indexes = self.split_array([codes.index(c) for c in codes if c.startswith(PLUS)])
+        deletion_indexes = self.split_array([codes.index(c) for c in codes if c.startswith(MINUS)])
+
+        count = 0
+        for addition_index, deletion_index in zip(addition_indexes, deletion_indexes):
+            value = abs(addition_index[0] - deletion_index[0]) + count
+
+            if addition_index[0] < deletion_index[0]:
+                deletion_start = deletion_line_numbers[deletion_index[0]] - value
+                deletion_end = deletion_start + len(deletion_index)
+                addition_start = addition_line_numbers[addition_index[0]] - count
+                addition_end = addition_start + len(addition_index)
+
+                for index, line_number in enumerate([*range(deletion_start, deletion_end)]):
+                    addition_line_numbers.insert(
+                        deletion_line_numbers.index(line_number - index + count),
+                        None
+                    )
+                cloned = addition_line_numbers
+                for index, line_number in enumerate([*range(addition_start, addition_end)]):
+                    deletion_line_numbers.insert(cloned.index(line_number - index + count), None)
+            else:
+                addition_start = addition_line_numbers[addition_index[0]] - value
+                addition_end = addition_start + len(addition_index)
+                deletion_start = deletion_line_numbers[deletion_index[0]] - count
+                deletion_end = deletion_start + len(deletion_index)
+
+                for index, line_number in enumerate([*range(addition_start, addition_end)]):
+                    deletion_line_numbers.insert(
+                        addition_line_numbers.index(line_number - index + count),
+                        None
+                    )
+                cloned = deletion_line_numbers
+                for index, line_number in enumerate([*range(deletion_start, deletion_end)]):
+                    addition_line_numbers.insert(cloned.index(line_number - index + count), None)
+
+            count += 1
+
+        code_prefixes = []
         for code in codes:
-            code = code[0].replace(PLUS, PLUS + SPACE).replace(MINUS, MINUS + SPACE) + code[1:]
+            if code:
+                code_prefixes.append(SPACE + code[0])
+                continue
+            code_prefixes.append(SPACE * 2)
+
+        line_numbers = self.generate_new_code_lines(
+            array_a=addition_line_numbers,
+            array_b=deletion_line_numbers,
+        )
+
+        for line_number, code in zip(line_numbers, codes):
+            before_line_number = SPACE if line_number[0] is None else str(line_number[0])
+            after_line_number = SPACE if line_number[1] is None else str(line_number[1])
+
+            if not code:
+                code = SPACE
+            else:
+                code = code[0].replace(PLUS, PLUS + SPACE).replace(MINUS, MINUS + SPACE) + code[1:]
+
             self.set_code(
-                code=(SPACE + code if code[0].startswith(SPACE) else code),
-                before_line_number=SPACE.rjust(number_digits, SPACE),
-                after_line_number=SPACE.rjust(number_digits, SPACE),
-                prefix=''
+                code=(code if code[0].startswith(SPACE) else code),
+                before_line_number=before_line_number.rjust(number_digits, SPACE),
+                after_line_number=after_line_number.rjust(number_digits, SPACE),
+                prefix=EMPTY
             )
 
     def set_initial_line(self) -> None:
@@ -214,12 +348,13 @@ class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
 
     def __init__(self, config: DiffSnippetConfig) -> None:
         self.config = config
-
-        self.language = config["language"]
-        self.file_name = config["file_name"]
         self.file_path = config["file_path"]
-        self.max_frame_width = config.get("max_frame_width")
-        self.number_digits = config.get("number_digits", 3)
+
+    @classmethod
+    def plural_form(self, word: str, number: int) -> str:
+        if number > 1:
+            return word + 's'
+        return word
 
     def count_changes(self, diff_sections_only: List[str]) -> Changes:
         additions = 0
@@ -237,11 +372,6 @@ class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
             deletions=deletions,
         )
 
-    def plural_form(self, word: str, number: int) -> str:
-        if number > 1:
-            return word + 's'
-        return word
-
     def format_title(self, data: Changes) -> str:
         number_of_additions = data["additions"]
         number_of_deletions = data["deletions"]
@@ -258,7 +388,7 @@ class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
         changes = "{changes} {graph} {changes} {string_change}".format(
             changes=number_of_changes,
             graph=graph,
-            string_change=self.plural_form("change", number_of_changes)
+            string_change=self.plural_form("Change", number_of_changes)
         )
 
         title = "{changes}: {additions} & {deletions}".format(

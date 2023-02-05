@@ -13,8 +13,8 @@ if __name__ == "__main__":
         file_name="abstract/code_snippet.py",
         file_path="./samples/diff.txt",
         language='',
-        max_frame_width=100,
-        # max_frame_width=terminal_width,
+        # max_frame_width=100,
+        max_frame_width=terminal_width,
     )
     diff_snippet = DiffSnippet(config=config)
     output = diff_snippet.generate()
@@ -24,8 +24,8 @@ if __name__ == "__main__":
         file_name="command.sh",
         file_path="./samples/command.sh",
         language='',
-        max_frame_width=100,
-        # max_frame_width=terminal_width,
+        # max_frame_width=100,
+        max_frame_width=terminal_width,
     )
     simple_snippet = SimpleSnippet(config=config)
     output = simple_snippet.generate()

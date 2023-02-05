@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from settings import ENCODING, READ, NAMED_FORMAT_PATTERN
+from settings import ENCODING, READ, NAMED_FORMAT_PATTERN, EMPTY
 
 
 class CodeSnippetFrameOperator:
@@ -15,19 +15,21 @@ class CodeSnippetFrameOperator:
 
         return template.format(**{name: word})
 
+    @classmethod
     def get_template_length(self, template: str) -> int:
-        return len(NAMED_FORMAT_PATTERN.sub('', template))
+        return len(NAMED_FORMAT_PATTERN.sub(EMPTY, template))
 
+    @classmethod
     def process_string(self, string: str) -> str:
-        result = ''
-        num_buffer = ''
+        result = EMPTY
+        num_buffer = EMPTY
         for character in string:
             if character.isdigit():
                 num_buffer += character
                 continue
             if num_buffer:
                 result += character * int(num_buffer)
-                num_buffer = ''
+                num_buffer = EMPTY
                 continue
             result += character
         if num_buffer:
@@ -37,6 +39,7 @@ class CodeSnippetFrameOperator:
 
 class CodeSnippetOperator:
 
+    @classmethod
     def get_file_content(self, file_path: str) -> List[str]:
         absolute_path = os.path.abspath(file_path)
         with open(absolute_path, READ, encoding=ENCODING) as diff_file:

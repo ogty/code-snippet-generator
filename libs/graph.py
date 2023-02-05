@@ -1,4 +1,4 @@
-from settings import DARK_SHADE, MEDIUM_SHADE, LIGHT_SHADE
+from settings import DARK_SHADE, MEDIUM_SHADE, LIGHT_SHADE, EMPTY
 
 
 class ChangesGraph:
@@ -25,7 +25,7 @@ class ChangesGraph:
         if number_of_changes <= self.max_value:
             additions = number_of_additions * self.addition_character
             deletions = number_of_deletions * self.deletion_character
-            string_graph = ''.join(sorted([additions, deletions], key=len, reverse=True))
+            string_graph = EMPTY.join(sorted([additions, deletions], key=len, reverse=True))
             if len(string_graph) < self.max_value:
                 return string_graph.ljust(self.max_value, self.format_character)
             return string_graph
