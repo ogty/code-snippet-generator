@@ -42,25 +42,8 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         return data
 
     @classmethod
-    def all_zeros(self, data: List[int]) -> bool:
-        return all(x == 0 for x in data)
-
-    @classmethod
     def split_string(self, string: str, n: int) -> List[str]:
         return [string[i:i + n] for i in range(0, len(string), n)]
-
-    @classmethod
-    def split_array(self, array: List[int]) -> List[List[int]]:
-        result = []
-        sub_array = [array[0]]
-        for i in range(1, len(array)):
-            if array[i] == array[i-1] + 1:
-                sub_array.append(array[i])
-            else:
-                result.append(sub_array)
-                sub_array = [array[i]]
-        result.append(sub_array)
-        return result
 
     def set_final_line(self) -> None:
         formatted = self.fill_padding(
@@ -164,53 +147,6 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             self.set_section_connecting_line()
             self.set_diff_section(diff_section=diff_section)
 
-    def swap(self, array: List[int | None]) -> List[int | None]:
-        is_none_start = array[0] is None
-        count = 0
-        result = []
-        if is_none_start:
-            for item in array:
-                if item is not None:
-                    result.insert(count, item)
-                    count += 1
-                    continue
-                result.append(None)
-            return result
-        for item in array:
-            if item is None:
-                result.insert(count, None)
-                count += 1
-                continue
-            result.append(item)
-        return result
-
-    def generate_new_code_lines(
-        self,
-        array_a: List[int | None],
-        array_b: List[int | None]
-    ) -> list:
-        result = []
-
-        tmp_array_for_a = []
-        tmp_array_for_b = []
-        for item_a, item_b in zip(array_a, array_b):
-            if isinstance(item_a, int) and isinstance(item_b, int):
-                if tmp_array_for_a or tmp_array_for_b:
-                    tmp_array_for_a = self.swap(tmp_array_for_a)
-                    tmp_array_for_b = self.swap(tmp_array_for_b)
-                    for a, b in zip(tmp_array_for_a, tmp_array_for_b):
-                        result.append([a, b])
-
-                tmp_array_for_a = []
-                tmp_array_for_b = []
-
-                result.append([item_b, item_a])
-                continue
-            tmp_array_for_a.append(item_b)
-            tmp_array_for_b.append(item_a)
-
-        return result
-
     def set_diff_section(self, diff_section: List[str]) -> None:
         number_digits = self.number_digits
         section_title = diff_section[0]
@@ -219,94 +155,30 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         start_end = self.convert_dict_values_to_int(matched.groupdict())
 
         addition_start = start_end["addition_start"]
-        addition_end = start_end["addition_end"]
         deletion_start = start_end["deletion_start"]
-        deletion_end = start_end["deletion_end"]
 
-        no_addition = self.all_zeros([addition_start, addition_end])
-        no_deletion = self.all_zeros([deletion_start, deletion_end])
-        is_one_zero = self.all_zeros([no_addition, no_deletion])
+        result = []
+        count_for_deletion = deletion_start
+        count_for_addition = addition_start
+        for code in codes:
+            if not code or code[0] == ' ':
+                result.append([count_for_deletion, count_for_addition, code])
+                count_for_deletion += 1
+                count_for_addition += 1
+                continue
 
-        is_addition_only = None
-        if not is_one_zero and no_deletion:
-            is_addition_only = True
-        elif not is_one_zero and no_addition:
-            is_addition_only = False
-
-        # TODO: Rename
-        def tmp(start: int, end: int, is_addition: bool = True) -> None:
-            prefix = PLUS if is_addition else MINUS
-            for code, line_number in zip(codes, range(start, end)):
-                before = (SPACE * number_digits)
-                after = str(line_number).rjust(number_digits, SPACE)
-                before_after = [before, after]
-
-                code = code[0].replace(prefix, EMPTY) + code[1:]
-                self.set_code(
-                    code=code,
-                    before_line_number=before_after[not is_addition],
-                    after_line_number=before_after[is_addition],
-                    prefix=(SPACE + prefix)
-                )
-
-        if is_addition_only is not None:
-            if not is_addition_only:
-                tmp(deletion_start, deletion_end, False)
+            prefix = code[0]
+            if prefix == PLUS:
+                result.append([None, count_for_addition, code])
+                count_for_addition += 1
             else:
-                tmp(addition_start, addition_end)
-            return
+                result.append([count_for_deletion, None, code])
+                count_for_deletion += 1
 
-        addition_line_numbers = [*range(addition_start, addition_end + addition_start)]
-        deletion_line_numbers = [*range(deletion_start, deletion_end + deletion_start)]
-
-        addition_indexes = self.split_array([codes.index(c) for c in codes if c.startswith(PLUS)])
-        deletion_indexes = self.split_array([codes.index(c) for c in codes if c.startswith(MINUS)])
-
-        count = 0
-        for addition_index, deletion_index in zip(addition_indexes, deletion_indexes):
-            value = abs(addition_index[0] - deletion_index[0]) + count
-
-            if addition_index[0] < deletion_index[0]:
-                deletion_start = deletion_line_numbers[deletion_index[0] - value]
-                deletion_end = deletion_start + len(deletion_index)
-                addition_start = addition_line_numbers[addition_index[0] - count]
-                addition_end = addition_start + len(addition_index)
-
-                for index, line_number in enumerate([*range(deletion_start, deletion_end)]):
-                    addition_line_numbers.insert(
-                        deletion_line_numbers.index(line_number - index + count),
-                        None
-                    )
-                cloned = addition_line_numbers
-                for index, line_number in enumerate([*range(addition_start, addition_end)]):
-                    deletion_line_numbers.insert(cloned.index(line_number - index + count), None)
-            else:
-                addition_start = addition_line_numbers[addition_index[0] - value]
-                addition_end = addition_start + len(addition_index)
-                deletion_start = deletion_line_numbers[deletion_index[0] - count]
-                deletion_end = deletion_start + len(deletion_index)
-
-                for index, line_number in enumerate([*range(addition_start, addition_end)]):
-                    deletion_line_numbers.insert(
-                        addition_line_numbers.index(line_number - index + count),
-                        None
-                    )
-                cloned = deletion_line_numbers
-                for index, line_number in enumerate([*range(deletion_start, deletion_end)]):
-                    addition_line_numbers.insert(cloned.index(line_number - index + count), None)
-
-            count += 1
-
-        addition_line_numbers.append(0)
-        deletion_line_numbers.append(0)
-        line_numbers = self.generate_new_code_lines(
-            array_a=addition_line_numbers,
-            array_b=deletion_line_numbers,
-        )
-
-        for line_number, code in zip(line_numbers, codes):
-            before_line_number = SPACE if line_number[0] is None else str(line_number[0])
-            after_line_number = SPACE if line_number[1] is None else str(line_number[1])
+        for item in result:
+            before_line_number = SPACE if item[0] is None else str(item[0])
+            after_line_number = SPACE if item[1] is None else str(item[1])
+            code = item[2]
 
             if not code:
                 code = SPACE

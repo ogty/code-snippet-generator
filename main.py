@@ -1,4 +1,5 @@
 import os
+import sys
 
 from models.diff_snippet import DiffSnippet
 from models.simple_snippet import SimpleSnippet
@@ -7,11 +8,14 @@ from settings import READ
 
 
 if __name__ == "__main__":
+    file_path = sys.argv[1]
+    file_name = sys.argv[2]
+
     terminal_width = int(os.popen("tput cols", READ).read().strip())
 
     config = DiffSnippetConfig(
-        file_name="abstract/code_snippet.py",
-        file_path="./samples/diff.txt",
+        file_name=file_name,
+        file_path=file_path,
         language='',
         # max_frame_width=100,
         max_frame_width=terminal_width,
