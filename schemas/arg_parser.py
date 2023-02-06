@@ -19,7 +19,7 @@ class Argument(TypedDict):
 
 
 class Arguments(Enum):
-    file = Argument(flags=("--file", "-f"), type=str, help="", required=True)
+    file = Argument(flags=("--file", "-f"), type=str, help="")
     path = Argument(flags=("--path", "-p"), type=str, help="", required=True)
     width = Argument(flags=("--width", "-w"), type=int, help="")
     output = Argument(flags=("--output", "-o"), type=str, help="")
