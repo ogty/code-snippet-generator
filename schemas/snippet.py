@@ -10,6 +10,7 @@ class SnippetConfig(TypedDict):
     language: str
     file_name: str
     file_path: str
+    output_path: str
     max_frame_width: int
 
 

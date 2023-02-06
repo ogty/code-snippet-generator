@@ -29,6 +29,7 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
 
         self.initial_line_template = "╭─ {file_name}─╮"
         self.frame_title_template = self.process_string("│2 {changes_title}│")
+        self.header_bottom_line_template = self.process_string("├{padding}┤")
         self.section_title_template = self.process_string(
             "│2 {column_word} │3 {section_title}│"
         )
@@ -49,6 +50,15 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
     @classmethod
     def split_string(self, string: str, n: int) -> List[str]:
         return [string[i : i + n] for i in range(0, len(string), n)]
+
+    def set_header_bottom_line(self) -> None:
+        formatted = self.fill_padding(
+            word=EMPTY,
+            name="padding",
+            template=self.header_bottom_line_template,
+            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
+        )
+        self.lines.append(formatted)
 
     def set_final_line(self) -> None:
         formatted = self.fill_padding(
@@ -299,6 +309,7 @@ class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
 
         frame = DiffSnippetFrame(self.config)
         frame.set_initial_line()
+        frame.set_header_bottom_line()
         frame.set_title(self.format_title(changes))
         frame.set_diff_sections(diff_sections)
         frame.set_final_line()

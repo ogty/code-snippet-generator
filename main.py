@@ -1,36 +1,77 @@
+from argparse import ArgumentParser
 import os
-import sys
+from typing import Any
 
 from models.diff_snippet import DiffSnippet
 from models.simple_snippet import SimpleSnippet
+from schemas.arg_parser import Arguments, SubCommand
 from schemas.snippet import DiffSnippetConfig, SnippetConfig
 from settings import READ
 
 
-if __name__ == "__main__":
-    file_path = sys.argv[1]
-    file_name = sys.argv[2]
+def set_arguments(subcommand: Any, arguments: Arguments) -> Any:
+    for argument in arguments:
+        flags = argument.value.get("flags")
+        other = {
+            "type": argument.value.get("type"),
+            "help": argument.value.get("help"),
+            "required": argument.value.get("required"),
+        }
+        subcommand.add_argument(*flags, **other)
+    return subcommand
 
+
+if __name__ == "__main__":
     terminal_width = int(os.popen("tput cols", READ).read().strip())
 
-    config = DiffSnippetConfig(
-        file_name=file_name,
-        file_path=file_path,
-        language="",
-        # max_frame_width=100,
-        max_frame_width=terminal_width,
-    )
-    diff_snippet = DiffSnippet(config=config)
-    output = diff_snippet.generate()
-    print(output)
+    parser = ArgumentParser()
+    sub_parser = parser.add_subparsers(title="subcommands", dest="subcommand")
 
-    config = SnippetConfig(
-        file_name="command.sh",
-        file_path="./samples/command.sh",
-        language="",
-        # max_frame_width=100,
-        max_frame_width=terminal_width,
+    diff = sub_parser.add_parser(**SubCommand(name="diff", help=""))
+    diff = set_arguments(
+        subcommand=diff,
+        arguments=[Arguments.file, Arguments.path, Arguments.width, Arguments.output],
     )
-    simple_snippet = SimpleSnippet(config=config)
-    output = simple_snippet.generate()
-    print(output)
+
+    simple = sub_parser.add_parser(**SubCommand(name="simple", help=""))
+    simple = set_arguments(subcommand=simple, arguments=Arguments)
+
+    arguments = parser.parse_args()
+    if sub_command_name := arguments.subcommand:
+        width = arguments.width
+        file = arguments.file
+        path = arguments.path
+        output_path = arguments.output
+
+        max_frame_width = width if width else terminal_width
+        if sub_command_name == "diff":
+            config = DiffSnippetConfig(
+                language="",
+                file_name=file,
+                file_path=path,
+                output_path=output_path,
+                max_frame_width=max_frame_width,
+            )
+            diff_snippet = DiffSnippet(config=config)
+            output = diff_snippet.generate()
+            if output_path:
+                diff_snippet.write_output(output=output, file_path=output_path)
+                exit(0)
+            print(output)
+        elif sub_command_name == "simple":
+            language = arguments.language
+            config = SnippetConfig(
+                language=language,
+                file_name=file,
+                file_path=path,
+                output_path=output_path,
+                max_frame_width=max_frame_width,
+            )
+            simple_snippet = SimpleSnippet(config=config)
+            output = simple_snippet.generate()
+            if output_path:
+                simple_snippet.write_output(output=output, file_path=output_path)
+                exit(0)
+            print(output)
+        exit(0)
+    parser.print_usage()

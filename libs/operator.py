@@ -1,7 +1,7 @@
-import os
+from os.path import abspath
 from typing import List
 
-from settings import ENCODING, READ, NAMED_FORMAT_PATTERN, EMPTY
+from settings import ENCODING, READ, NAMED_FORMAT_PATTERN, EMPTY, RED, RESET, WRITE
 
 
 class CodeSnippetFrameOperator:
@@ -39,6 +39,16 @@ class CodeSnippetFrameOperator:
 class CodeSnippetOperator:
     @classmethod
     def get_file_content(self, file_path: str) -> List[str]:
-        absolute_path = os.path.abspath(file_path)
-        with open(absolute_path, READ, encoding=ENCODING) as file:
-            return [line.rstrip() for line in file.readlines()]
+        absolute_path = abspath(file_path)
+        try:
+            with open(absolute_path, READ, encoding=ENCODING) as file:
+                return [line.rstrip() for line in file.readlines()]
+        except FileNotFoundError as error:
+            print(RED, error, RESET)
+            exit(1)
+
+    @classmethod
+    def write_output(self, output: str, file_path: str) -> None:
+        absolute_path = abspath(file_path)
+        with open(absolute_path, WRITE, encoding=ENCODING) as file:
+            file.write(output)
