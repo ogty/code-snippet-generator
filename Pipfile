@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 
 [dev-packages]
+coverage = "*"
+codecov = "*"
 
 [requires]
 python_version = "3.10"
