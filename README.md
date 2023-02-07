@@ -18,9 +18,9 @@
 ╭──────────────────────────────────────────────────────────────────────────────────────────╮
 │ ● ◍ ○                                   zsh                                              │
 ├──────────────────────────────────────────────────────────────────────────────────────────┤
-│  $ git clone https://github.com/ogty/code-snippet-generator                              │
-│  $ cd code-snippet-generator                                                             │
-│  $ make # or `chmod +x ./snippet`                                                        │
+│ $ git clone https://github.com/ogty/code-snippet-generator                               │
+│ $ cd code-snippet-generator                                                              │
+│ $ make # or `chmod +x ./snippet`                                                         │
 ╰──────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -33,29 +33,29 @@
 ```
 ╭─ Markdown ─ docs/usage.md ───────────────────────────────────────────────────────────────╮
 ├──────────────────────────────────────────────────────────────────────────────────────────┤
-│  ```zsh                                                                                  │
-│  $ ./snippet <subcommand> --path <file-path> [options]                                   │
-│  ```                                                                                     │
+│ ```zsh                                                                                   │
+│ $ ./snippet <subcommand> --path <file-path> [options]                                    │
+│ ```                                                                                      │
 │                                                                                          │
-│  ### Subcommands                                                                         │
+│ ### Subcommands                                                                          │
 │                                                                                          │
-│  - `diff`                                                                                │
-│  - `simple`                                                                              │
-│  - `shell`                                                                               │
+│ - `diff`                                                                                 │
+│ - `simple`                                                                               │
+│ - `shell`                                                                                │
 │                                                                                          │
-│  ### Options                                                                             │
+│ ### Options                                                                              │
 │                                                                                          │
-│  | Long             | Short | Explanation                               | Required |     │
-│  | ---------------- | ----- | ----------------------------------------- | -------- |     │
-│  | `--path`         | `-p`  | File path                                 | True     |     │
-│  | `--file`         | `-f`  | File name                                 | False    |     │
-│  | `--width`        | `-w`  | Frame width                               | False    |     │
-│  | `--output`       | `-o`  | Output file path                          | False    |     │
-│  | `--language`     | `-l`  | Language                                  | False    |     │
-│  | `--prefix`       | `-x`  | Prefix of each line                       | False    |     │
-│  | `--line-number`  | `-n`  | Display of line numbers                   | False    |     │
-│  | `--start-line`   | `-s`  | Start of line number                      | False    |     │
-│  | `--current-file` | `-c`  | Name the file you are reading as `--file` | False    |     │
+│ | Long             | Short | Explanation                               | Required |      │
+│ | ---------------- | ----- | ----------------------------------------- | -------- |      │
+│ | `--path`         | `-p`  | File path                                 | True     |      │
+│ | `--file`         | `-f`  | File name                                 | False    |      │
+│ | `--width`        | `-w`  | Frame width                               | False    |      │
+│ | `--output`       | `-o`  | Output file path                          | False    |      │
+│ | `--language`     | `-l`  | Language                                  | False    |      │
+│ | `--prefix`       | `-x`  | Prefix of each line                       | False    |      │
+│ | `--line-number`  | `-n`  | Display of line numbers                   | False    |      │
+│ | `--start-line`   | `-s`  | Start of line number                      | False    |      │
+│ | `--current-file` | `-c`  | Name the file you are reading as `--file` | False    |      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -69,8 +69,8 @@
 ╭──────────────────────────────────────────────────────────────────────────────────────────╮
 │ ● ◍ ○                                   zsh                                              │
 ├──────────────────────────────────────────────────────────────────────────────────────────┤
-│  $ ./snippet diff -p samples/diff.txt -f main.py -w 100 | pbcopy                         │
-│  $ ./snippet simple -p snippet -f snippet.py -l Python -o ./samples/example1.txt -w 100  │
+│ $ ./snippet diff -p samples/diff.txt -f main.py -w 100 | pbcopy                          │
+│ $ ./snippet simple -p snippet -f snippet.py -l Python -o ./samples/example1.txt -w 100   │
 ╰──────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 

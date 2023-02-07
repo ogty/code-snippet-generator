@@ -14,7 +14,7 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
 
         self.initial_line_template = self.process_string("╭─{language}─{file_name}─╮")
         self.header_bottom_line_template = self.process_string("├{padding}┤")
-        self.code_line_template = self.process_string("│2 {padding}2 │")
+        self.code_line_template = self.process_string("│ {padding} │")
         self.final_line_template = self.process_string("╰{padding}╯")
 
     @classmethod

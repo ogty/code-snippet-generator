@@ -29,7 +29,10 @@ def set_arguments(subcommand: Any, arguments: Arguments) -> Any:
 
 
 if __name__ == "__main__":
-    terminal_width = os.get_terminal_size().columns
+    try:
+        terminal_width = os.get_terminal_size().columns
+    except OSError:
+        terminal_width = int(os.popen("tput cols", READ).read().strip())
 
     parser = ArgumentParser()
     sub_parser = parser.add_subparsers(title="subcommands", dest="subcommand")

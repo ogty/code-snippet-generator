@@ -9,6 +9,9 @@ class ShellSnippetFrame(SimpleSnippetFrame):
     def __init__(self, config: ShellSnippetConfig) -> None:
         super().__init__(config)
 
+        self.command_prompt_header_line_template = self.process_string(
+            "│▕  ▭ {tab} ×  ▏ +  {padding}  ─   □   ×  │"
+        )
         self.terminal_header_line_template = self.process_string(
             "│ ● ◍ ○ {left_padding} {shell_name} {right_padding} │"
         )  #   ▔▔▔▔▔└───────────────▽
