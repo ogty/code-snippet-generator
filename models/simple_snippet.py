@@ -9,7 +9,7 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         self.lines = []
 
         self.language = config["language"]
-        self.file_name = config["file_name"]
+        self.file_name = config.get("file_name", "")
         self.max_frame_width = config["max_frame_width"]
 
         self.initial_line_template = self.process_string("╭─{language}─{file_name}─╮")

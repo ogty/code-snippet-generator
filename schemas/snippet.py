@@ -16,3 +16,7 @@ class SnippetConfig(TypedDict):
 
 class DiffSnippetConfig(SnippetConfig, total=False):
     number_digits: int
+
+
+class ShellSnippetConfig(SnippetConfig, total=False):
+    shell_name: str

@@ -13,7 +13,7 @@ docs-usage:
 	@./snippet simple -p docs/usage.md -l Markdown -w ${max_frame_width} | pbcopy
 
 docs-examples:
-	@./snippet simple -p docs/examples.txt -l Zsh -x '$$ ' -w ${max_frame_width} | pbcopy
+	@./snippet shell -p ./docs/examples.txt -l zsh -x '$$ ' -w ${max_frame_width} | pbcopy
 
 docs-setup:
-	@./snippet simple -p docs/setup.txt -l Zsh -x '$$ ' -w ${max_frame_width} | pbcopy
+	@./snippet shell -p docs/setup.txt -l Zsh -x '$$ ' -w ${max_frame_width} | pbcopy
