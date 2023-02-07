@@ -37,7 +37,13 @@ if __name__ == "__main__":
     diff = sub_parser.add_parser(**SubCommand(name="diff", help=""))
     diff = set_arguments(
         subcommand=diff,
-        arguments=[Arguments.file, Arguments.path, Arguments.width, Arguments.output],
+        arguments=[
+            Arguments.file,
+            Arguments.path,
+            Arguments.width,
+            Arguments.output,
+            Arguments.current_file,
+        ],
     )
 
     simple = sub_parser.add_parser(**SubCommand(name="simple", help=""))
