@@ -1,4 +1,5 @@
 max_frame_width := 92
+shell_name      := zsh
 
 setup:
 	@chmod +x ./snippet
@@ -13,7 +14,7 @@ docs-usage:
 	@./snippet simple -p docs/usage.md -l Markdown -w ${max_frame_width} -f docs/usage.md | pbcopy
 
 docs-examples:
-	@./snippet shell -p ./docs/examples.txt -l zsh -x '$$ ' -w ${max_frame_width} | pbcopy
+	@./snippet shell -p ./docs/examples.txt -l ${shell_name} -x '$$ ' -w ${max_frame_width} | pbcopy
 
 docs-setup:
-	@./snippet shell -p docs/setup.txt -l Zsh -x '$$ ' -w ${max_frame_width} | pbcopy
+	@./snippet shell -p docs/setup.txt -l ${shell_name} -x '$$ ' -w ${max_frame_width} | pbcopy
