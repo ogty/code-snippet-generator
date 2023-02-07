@@ -17,7 +17,3 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(
             CodeSnippetFrameOperator.process_string(string), expected_result
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

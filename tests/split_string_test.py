@@ -24,7 +24,3 @@ class TestSplitString(unittest.TestCase):
         expected = ["abc"]
         result = DiffSnippetFrame.split_string(string, n)
         self.assertEqual(result, expected)
-
-
-if __name__ == "__main__":
-    unittest.main()

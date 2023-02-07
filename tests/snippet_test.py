@@ -69,7 +69,3 @@ class TestSnippet(unittest.TestCase):
         output = diff_snippet.generate()
 
         self.assertEqual(output, expected_output)
-
-
-if __name__ == "__main__":
-    unittest.main()

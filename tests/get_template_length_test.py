@@ -17,7 +17,3 @@ class TestTemplateMethods(unittest.TestCase):
         self.assertEqual(
             CodeSnippetFrameOperator.get_template_length(template), expected_length
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

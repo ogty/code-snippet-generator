@@ -9,7 +9,3 @@ class TestConvertDictValuesToInt(unittest.TestCase):
         expected = {"key1": 1, "key2": 2, "key3": 0}
         result = DiffSnippetFrame.convert_dict_values_to_int(data)
         self.assertEqual(result, expected)
-
-
-if __name__ == "__main__":
-    unittest.main()
