@@ -6,6 +6,7 @@ $ ./snippet <subcommand> --path <file-path> [options]
 
 - `diff`
 - `simple`
+- `shell`
 
 ### Options
 

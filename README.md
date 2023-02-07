@@ -39,6 +39,7 @@
 │                                                                                          │
 │  - `diff`                                                                                │
 │  - `simple`                                                                              │
+│  - `shell`                                                                               │
 │                                                                                          │
 │  ### Options                                                                             │
 │                                                                                          │
