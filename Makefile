@@ -10,7 +10,7 @@ clean-pychache:
 	@find . -name "__pycache__" -exec rm -rf {} \; 2>/dev/null
 
 docs-usage:
-	@./snippet simple -p docs/usage.md -l Markdown -w ${max_frame_width} | pbcopy
+	@./snippet simple -p docs/usage.md -l Markdown -w ${max_frame_width} -f docs/usage.md | pbcopy
 
 docs-examples:
 	@./snippet shell -p ./docs/examples.txt -l zsh -x '$$ ' -w ${max_frame_width} | pbcopy
