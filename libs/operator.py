@@ -35,6 +35,10 @@ class CodeSnippetFrameOperator:
             result += character * int(num_buffer)
         return result
 
+    @classmethod
+    def split_string(self, string: str, n: int) -> List[str]:
+        return [string[i : i + n] for i in range(0, len(string), n)]
+
 
 class CodeSnippetOperator:
     @classmethod

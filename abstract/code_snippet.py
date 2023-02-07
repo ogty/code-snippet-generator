@@ -14,6 +14,10 @@ class CodeSnippetFrameInterface(metaclass=ABCMeta):
     def set_final_line(self) -> None:
         raise NotImplementedError
 
+    @abstractclassmethod
+    def set_code(self) -> None:
+        raise NotImplementedError
+
 
 class CodeSnippetInterface(metaclass=ABCMeta):
     @abstractclassmethod

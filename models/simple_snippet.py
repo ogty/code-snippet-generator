@@ -1,5 +1,3 @@
-from typing import List
-
 from abstract.code_snippet import CodeSnippetFrameInterface
 from libs.operator import CodeSnippetOperator, CodeSnippetFrameOperator
 from schemas.snippet import SnippetConfig
@@ -40,15 +38,34 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         )
         self.lines.append(formatted)
 
-    def set_code(self, codes: List[str]) -> None:
-        for code in codes:
-            formatted = self.fill_padding(
-                word=code,
-                name="padding",
-                template=self.code_line_template,
-                character=SPACE,
-            )
-            self.lines.append(formatted)
+    def set_code(self, code: str) -> None:
+        template = self.code_line_template
+
+        template_length = self.get_template_length(template=template)
+        content_length = template_length + len(code)
+        padding_width = self.max_frame_width - content_length
+        max_remainder_width = self.max_frame_width - template_length
+
+        if padding_width < 0:
+            is_first_output = True
+            remainder_codes = self.split_string(code, max_remainder_width)
+            for remainder_code in remainder_codes:
+                if is_first_output:
+                    is_first_output = False
+
+                padding_width = max_remainder_width - len(remainder_code)
+                padding = padding_width * SPACE
+                formatted = template.format(
+                    padding=(remainder_code + padding),
+                )
+                self.lines.append(formatted)
+            return
+
+        padding = padding_width * SPACE
+        formatted = template.format(
+            padding=(code + padding),
+        )
+        self.lines.append(formatted)
 
     def set_header_bottom_line(self) -> None:
         formatted = self.fill_padding(
@@ -80,7 +97,8 @@ class SimpleSnippet(CodeSnippetOperator):
         frame = SimpleSnippetFrame(config=self.config)
         frame.set_initial_line()
         frame.set_header_bottom_line()
-        frame.set_code(file_content)
+        for code in file_content:
+            frame.set_code(code)
         frame.set_final_line()
 
         return NEWLINE.join(frame.lines)

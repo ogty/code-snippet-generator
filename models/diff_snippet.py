@@ -47,10 +47,6 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             data[key] = int(0 if data[key] is None else data[key])
         return data
 
-    @classmethod
-    def split_string(self, string: str, n: int) -> List[str]:
-        return [string[i : i + n] for i in range(0, len(string), n)]
-
     def set_header_bottom_line(self) -> None:
         formatted = self.fill_padding(
             word=EMPTY,
