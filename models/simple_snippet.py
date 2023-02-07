@@ -1,4 +1,4 @@
-from abstract.code_snippet import CodeSnippetFrameInterface
+from abstract.code_snippet import CodeSnippetFrameInterface, CodeSnippetInterface
 from libs.operator import CodeSnippetOperator, CodeSnippetFrameOperator
 from schemas.snippet import SnippetConfig
 from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, SPACE, NEWLINE, EMPTY
@@ -86,7 +86,7 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         self.lines.append(formatted)
 
 
-class SimpleSnippet(CodeSnippetOperator):
+class SimpleSnippet(CodeSnippetOperator, CodeSnippetInterface):
     def __init__(self, config: SnippetConfig) -> None:
         self.config = config
         self.file_path = config["file_path"]

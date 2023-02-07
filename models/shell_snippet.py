@@ -1,7 +1,8 @@
+from abstract.code_snippet import CodeSnippetInterface
 from libs.operator import CodeSnippetOperator
 from models.simple_snippet import SimpleSnippetFrame
 from schemas.snippet import ShellSnippetConfig
-from settings import NEWLINE, SPACE, BOX_DRAWINGS_LIGHT_HORIZONTAL, EMPTY
+from settings import NEWLINE, SPACE, BOX_DRAWINGS_LIGHT_HORIZONTAL
 
 
 class ShellSnippetFrame(SimpleSnippetFrame):
@@ -55,7 +56,7 @@ class ShellSnippetFrame(SimpleSnippetFrame):
         self.lines.append(formatted)
 
 
-class ShellSnippet(CodeSnippetOperator):
+class ShellSnippet(CodeSnippetOperator, CodeSnippetInterface):
     def __init__(self, config: ShellSnippetConfig) -> None:
         self.config = config
         self.file_path = config["file_path"]
