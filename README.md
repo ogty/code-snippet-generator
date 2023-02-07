@@ -41,13 +41,17 @@
 │                                                                                          │
 │  ### Options                                                                             │
 │                                                                                          │
-│  | Long flag     | Short flag | Explanation      | Required |                            │
-│  | ------------- | ---------- | ---------------- | -------- |                            │
-│  | `--path`      | `-p`       | file path        | True     |                            │
-│  | `--file`      | `-f`       | file name        | False    |                            │
-│  | `--width`     | `-w`       | frame width      | False    |                            │
-│  | `--output`    | `-o`       | output file path | False    |                            │
-│  | `--language`  | `-l`       | language         | False    |                            │
+│  | Long             | Short | Explanation                               | Required |     │
+│  | ---------------- | ----- | ----------------------------------------- | -------- |     │
+│  | `--path`         | `-p`  | File path                                 | True     |     │
+│  | `--file`         | `-f`  | File name                                 | False    |     │
+│  | `--width`        | `-w`  | Frame width                               | False    |     │
+│  | `--output`       | `-o`  | Output file path                          | False    |     │
+│  | `--language`     | `-l`  | Language                                  | False    |     │
+│  | `--prefix`       | `-x`  | Prefix of each line                       | False    |     │
+│  | `--line-number`  | `-n`  | Display of line numbers                   | False    |     │
+│  | `--start-line`   | `-s`  | Start of line number                      | False    |     │
+│  | `--current-file` | `-c`  | Name the file you are reading as `--file` | False    |     │
 ╰──────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 

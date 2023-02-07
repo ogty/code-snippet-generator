@@ -1,2 +1,2 @@
-$ ./snippet simple -p snippet -f snippet.py -l Python -o ./samples/example1.txt -w 100
-$ ./snippet diff -p samples/diff.txt -f main.py -w 100 | pbcopy
+./snippet diff -p samples/diff.txt -f main.py -w 100 | pbcopy
+./snippet simple -p snippet -f snippet.py -l Python -o ./samples/example1.txt -w 100

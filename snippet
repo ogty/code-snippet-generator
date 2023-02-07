@@ -9,11 +9,15 @@ from models.simple_snippet import SimpleSnippet
 from schemas.arg_parser import Arguments, SubCommand
 from schemas.snippet import DiffSnippetConfig, SnippetConfig
 from settings import READ
+from utils.get_current_info import get_file_name
 
 
 def set_arguments(subcommand: Any, arguments: Arguments) -> Any:
     for argument in arguments:
         flags = argument.value.get("flags")
+        if "action" in argument.value:
+            subcommand.add_argument(*flags, action=argument.value.get("action"))
+            continue
         other = {
             "type": argument.value.get("type"),
             "help": argument.value.get("help"),
@@ -41,9 +45,13 @@ if __name__ == "__main__":
     arguments = parser.parse_args()
     if sub_command_name := arguments.subcommand:
         width = arguments.width
-        file = arguments.file
         path = arguments.path
+        file = arguments.file
         output_path = arguments.output
+        is_current_file = arguments.current_file
+
+        if is_current_file:
+            file = get_file_name(path=path)
 
         max_frame_width = width if width else terminal_width
         if sub_command_name == "diff":
@@ -62,6 +70,10 @@ if __name__ == "__main__":
             print(output)
         elif sub_command_name == "simple":
             language = arguments.language
+            prefix = arguments.prefix
+            is_line_number = arguments.line_number
+            start_line = arguments.start_line
+
             config = SnippetConfig(
                 language=language,
                 file_name=file,
@@ -70,7 +82,9 @@ if __name__ == "__main__":
                 max_frame_width=max_frame_width,
             )
             simple_snippet = SimpleSnippet(config=config)
-            output = simple_snippet.generate()
+            output = simple_snippet.generate(
+                prefix=prefix, is_line_number=is_line_number, start_line=start_line
+            )
             if output_path:
                 simple_snippet.write_output(output=output, file_path=output_path)
                 exit(0)

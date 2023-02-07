@@ -91,8 +91,26 @@ class SimpleSnippet(CodeSnippetOperator):
         self.config = config
         self.file_path = config["file_path"]
 
-    def generate(self) -> str:
+    def generate(
+        self, prefix: str = "", is_line_number: bool = False, start_line: int = None
+    ) -> str:
+        start_line = start_line or 1
+
         file_content = self.get_file_content(self.file_path)
+        file_content_length = len(file_content)
+        number_digits = len(str(file_content_length))
+        if is_line_number:
+            line_numbers = [
+                str(i).rjust(number_digits, SPACE)
+                for i in range(start_line, file_content_length + start_line)
+            ]
+            file_content = list(
+                map(
+                    lambda x: x[0] + (SPACE * 3) + x[1], zip(line_numbers, file_content)
+                )
+            )
+        if prefix:
+            file_content = list(map(lambda l: prefix + l, file_content))
 
         frame = SimpleSnippetFrame(config=self.config)
         frame.set_initial_line()
