@@ -22,7 +22,7 @@ docs-setup:
 	@./snippet shell -p docs/setup.txt -l ${shell_name} -x '$$ ' -w ${max_frame_width} | pbcopy
 
 .PHONY: coverage
-coverate:
+coverage:
 	@coverage run -m unittest discover -s ./tests -p "*_test.py"
 
 coverage-report: coverage
