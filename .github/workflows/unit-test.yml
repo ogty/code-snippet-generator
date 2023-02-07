@@ -31,4 +31,4 @@ jobs:
         pipenv install
     - name: Test
       run: |
-        coverage run -m unittest discover -s ./tests -p "*_test.py"
+        pipenv run coverage run -m unittest discover -s ./tests -p "*_test.py"
