@@ -29,5 +29,7 @@ jobs:
     - name: Test
       run: |
         pipenv run coverage run -m unittest discover -s ./tests -p "*_test.py"
+    - uses: codecov/codecov-action@v3
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
+      run: |
+        codecov -f .coverage
