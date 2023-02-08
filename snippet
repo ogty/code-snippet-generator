@@ -2,15 +2,22 @@
 
 from argparse import ArgumentParser
 import os
-from typing import Any
+import re
+from subprocess import run
+from typing import Any, List
+import uuid
 
 from models.diff_snippet import DiffSnippet
 from models.simple_snippet import SimpleSnippet
 from models.shell_snippet import ShellSnippet
 from schemas.arg_parser import Arguments, SubCommand
 from schemas.snippet import DiffSnippetConfig, SnippetConfig, ShellSnippetConfig
-from settings import READ
+from settings import READ, NEWLINE, ENCODING, WRITE, SPACE
 from utils.get_current_info import get_file_name
+
+
+COMMIT_ID_PATTERN = re.compile(r"^commit (?P<commit_id>[a-f0-9]+)$")
+PATTERN = re.compile(r"^(A|D|M)\t(?P<file_path>.+)$")
 
 
 def set_arguments(subcommand: Any, arguments: Arguments) -> Any:
@@ -26,6 +33,31 @@ def set_arguments(subcommand: Any, arguments: Arguments) -> Any:
         }
         subcommand.add_argument(*flags, **other)
     return subcommand
+
+
+def get_latest_commit_id_for_diff(target: str) -> List[str] | List[None]:
+    commit_id = ""
+    commit_ids = []
+
+    logs = run(
+        ["git", "log", "--name-status"], encoding=ENCODING, capture_output=True
+    ).stdout.split(NEWLINE)
+
+    for log in logs:
+        if len(commit_ids) == 2:
+            break
+        if commit_id_matched := COMMIT_ID_PATTERN.match(log):
+            commit_id = commit_id_matched.group("commit_id")
+            continue
+        if matched := PATTERN.match(log):
+            file_path = matched.group("file_path")
+            if target != file_path:
+                continue
+            commit_ids.insert(0, commit_id)
+
+    if len(commit_ids) == 1:
+        return ["%s^" % commit_ids[0], "HEAD"]
+    return commit_ids
 
 
 if __name__ == "__main__":
@@ -46,6 +78,7 @@ if __name__ == "__main__":
             Arguments.width,
             Arguments.output,
             Arguments.current_file,
+            Arguments.from_log,
         ],
     )
 
@@ -74,14 +107,30 @@ if __name__ == "__main__":
         max_frame_width = width if width else terminal_width
         if sub_command_name == "diff":
             file = arguments.file
+            is_from_log = arguments.from_log
             is_current_file = arguments.current_file
-            if is_current_file:
+            if file is None or is_current_file:
                 file = get_file_name(path=path)
+
+            if is_from_log:
+                commit_ids = get_latest_commit_id_for_diff(path)
+                if not commit_ids:
+                    print("No diff")
+                    exit(0)
+                diff = run(
+                    ["git", "diff", commit_ids[0], commit_ids[1], "--", path],
+                    encoding=ENCODING,
+                    capture_output=True,
+                ).stdout
+
+                temporary_file_name = "%s.tmp.txt" % uuid.uuid4()
+                with open(temporary_file_name, WRITE, encoding=ENCODING) as f:
+                    f.write(diff.replace("\t", SPACE * 4))
 
             config = DiffSnippetConfig(
                 language="",
                 file_name=file,
-                file_path=path,
+                file_path=(temporary_file_name if is_from_log else path),
                 output_path=output_path,
                 max_frame_width=max_frame_width,
             )
@@ -91,6 +140,9 @@ if __name__ == "__main__":
                 diff_snippet.write_output(output=output, file_path=output_path)
                 exit(0)
             print(output)
+
+            if is_from_log:
+                os.remove(temporary_file_name)
         elif sub_command_name == "simple":
             file = arguments.file
             is_current_file = arguments.current_file

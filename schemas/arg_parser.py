@@ -49,3 +49,7 @@ class Arguments(Enum):
         flags=("--command-prompt", "-m"),
         action=Actions.store_true.value,
     )
+    from_log = Argument(
+        flags=("--from-log", "-g"),
+        action=Actions.store_true.value,
+    )
