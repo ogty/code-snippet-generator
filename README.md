@@ -76,7 +76,7 @@
 
 ```
 ╭──────────────────────────────────────────────────────────────────────────────────────────╮
-│▕  ▭ Desktop ×  ▏ +                                                            ─   □   ×  │
+│▕  ▭ Desktop ×  ▏ +                                                            -   □   ×  │
 ├──────────────────────────────────────────────────────────────────────────────────────────┤
 │ C:\Users\ogty\Desktop>git clone https://github.com/ogty/code-snippet-generator           │
 │ C:\Users\ogty\Desktop>cd code-snippet-generator                                          │
