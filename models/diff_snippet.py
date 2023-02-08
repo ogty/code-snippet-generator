@@ -122,7 +122,6 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                 remainder_prefix = SPACE * 2
 
                 if is_first_output:
-                    remainder_prefix = prefix
                     before = before_line_number
                     after = after_line_number
                     is_first_output = False
