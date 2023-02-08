@@ -45,3 +45,7 @@ class Arguments(Enum):
         flags=("--current-file", "-c"),
         action=Actions.store_true.value,
     )
+    command_prompt = Argument(
+        flags=("--command-prompt", "-m"),
+        action=Actions.store_true.value,
+    )

@@ -61,6 +61,7 @@ if __name__ == "__main__":
             Arguments.output,
             Arguments.prefix,
             Arguments.language,
+            Arguments.command_prompt,
         ],
     )
 
@@ -119,6 +120,7 @@ if __name__ == "__main__":
         elif sub_command_name == "shell":
             shell_name = arguments.language
             prefix = arguments.prefix
+            is_command_prompt = arguments.command_prompt
 
             config = ShellSnippetConfig(
                 language=shell_name,
@@ -127,7 +129,9 @@ if __name__ == "__main__":
                 max_frame_width=max_frame_width,
             )
             shell_snippet = ShellSnippet(config=config)
-            output = shell_snippet.generate(prefix=prefix)
+            output = shell_snippet.generate(
+                prefix=prefix, is_command_prompt=is_command_prompt
+            )
             if output_path:
                 shell_snippet.write_output(output=output, file_path=output_path)
                 exit(0)

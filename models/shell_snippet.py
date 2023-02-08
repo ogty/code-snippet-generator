@@ -28,6 +28,16 @@ class ShellSnippetFrame(SimpleSnippetFrame):
         formatted = template.format(padding=padding)
         self.lines.append(formatted)
 
+    def set_command_prompt_header_line(self) -> None:
+        template = self.command_prompt_header_line_template
+        template_length = self.get_template_length(template=template)
+        tab_name = self.language
+        padding_width = self.max_frame_width - (template_length + len(tab_name))
+        padding = padding_width * SPACE
+
+        formatted = template.format(tab=tab_name, padding=padding)
+        self.lines.append(formatted)
+
     def set_terminal_header_line(self) -> None:
         shell_name = self.language
         shell_name_length = len(shell_name)
@@ -64,7 +74,7 @@ class ShellSnippet(CodeSnippetOperator, CodeSnippetInterface):
         self.config = config
         self.file_path = config["file_path"]
 
-    def generate(self, prefix: str = "") -> str:
+    def generate(self, prefix: str = "", is_command_prompt: bool = False) -> str:
         file_content = self.get_file_content(self.file_path)
 
         if prefix:
@@ -72,7 +82,10 @@ class ShellSnippet(CodeSnippetOperator, CodeSnippetInterface):
 
         frame = ShellSnippetFrame(config=self.config)
         frame.set_initial_line()
-        frame.set_terminal_header_line()
+        if is_command_prompt:
+            frame.set_command_prompt_header_line()
+        else:
+            frame.set_terminal_header_line()
         frame.set_header_bottom_line()
         for code in file_content:
             frame.set_code(code)

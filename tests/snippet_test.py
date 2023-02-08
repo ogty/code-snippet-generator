@@ -26,6 +26,33 @@ class TestSnippet(unittest.TestCase):
         shell_snippet = ShellSnippet(config=config)
         output = shell_snippet.generate(prefix=prefix)
 
+        self.maxDiff = None
+        self.assertEqual(output, expected_output)
+
+    def test_command_prompt_snippet(self):
+        with open(
+            "tests/data/command_prompt_snippet_output.txt", READ, encoding=ENCODING
+        ) as f:
+            expected_output = f.read()
+
+        path = "tests/data/command_prompt_snippet.txt"
+        prefix = "C:\\Users\\ogty\\Desktop"
+        shell_name = "Desktop"
+        max_frame_width = 100
+        is_command_prompt = True
+
+        config = ShellSnippetConfig(
+            language=shell_name,
+            file_path=path,
+            output_path="",
+            max_frame_width=max_frame_width,
+        )
+        shell_snippet = ShellSnippet(config=config)
+        output = shell_snippet.generate(
+            prefix=prefix, is_command_prompt=is_command_prompt
+        )
+
+        self.maxDiff = None
         self.assertEqual(output, expected_output)
 
     def test_simple_sippet(self):
@@ -48,6 +75,7 @@ class TestSnippet(unittest.TestCase):
         simple_snippet = SimpleSnippet(config=config)
         output = simple_snippet.generate(is_line_number=is_line_number)
 
+        self.maxDiff = None
         self.assertEqual(output, expected_output)
 
     def test_diff_snippet(self):
@@ -68,4 +96,5 @@ class TestSnippet(unittest.TestCase):
         diff_snippet = DiffSnippet(config=config)
         output = diff_snippet.generate()
 
+        self.maxDiff = None
         self.assertEqual(output, expected_output)

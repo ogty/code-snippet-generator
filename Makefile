@@ -27,3 +27,7 @@ coverage:
 
 coverage-report: coverage
 	@coverage report --omit=${IGNORE_PATH}
+
+.PHONY: list
+list:
+	@cat Makefile | grep -E '^[-a-z]+:' | sed -r 's/(.+):(.+)?/- \1/g'
