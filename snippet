@@ -17,7 +17,7 @@ from utils.get_current_info import get_file_name
 
 
 COMMIT_ID_PATTERN = re.compile(r"^commit (?P<commit_id>[a-f0-9]+)$")
-PATTERN = re.compile(r"^(A|D|M)\t(?P<file_path>.+)$")
+PATTERN = re.compile(r"^(A|C|D|M|R|U|\?\?)\t(?P<file_path>.+)$")
 
 
 def set_arguments(subcommand: Any, arguments: Arguments) -> Any:
