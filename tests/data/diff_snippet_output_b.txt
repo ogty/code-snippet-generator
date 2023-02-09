@@ -1,35 +1,54 @@
 ╭─ main.py ────────────────────────────────────────────────────────────────────╮
 ├──────────────────────────────────────────────────────────────────────────────┤
-│  10 ▓▓▓▓░ 10 Changes: 6 additions & 4 deletions                              │
+│  12 ▓▓▓▓░ 12 Changes: 9 additions & 3 deletions                              │
 ├─────────────┬────────────────────────────────────────────────────────────────┤
-│  ...    ... │   @@ -10,10 +10,11 @@                                          │
+│  ...    ... │   @@ -9,6 +9,7 @@ from settings import (                       │
 ├─────────────┼────────────────────────────────────────────────────────────────┤
-│   10     10 │         terminal_width = int(os.popen("tput cols", READ).read  │
-│             │   ().strip())                                                  │
-│   11     11 │                                                                │
-│   12     12 │       config = DiffSnippetConfig(                              │
-│   13        │ -         file_name="Cargo.toml",                              │
-│          13 │ +         file_name="abstract/code_snippet.py",                │
-│   14     14 │           file_path="./samples/diff.txt",                      │
-│   15     15 │           language='',                                         │
-│   16        │ -         max_frame_width=terminal_width,                      │
-│          16 │ +         max_frame_width=100,                                 │
-│          17 │ +         # max_frame_width=terminal_width,                    │
-│   17     18 │       )                                                        │
-│   18     19 │       diff_snippet = DiffSnippet(config=config)                │
-│   19     20 │       output = diff_snippet.generate()                         │
+│    9      9 │       SPACE,                                                   │
+│   10     10 │       EMPTY,                                                   │
+│   11     11 │       NEWLINE,                                                 │
+│          12 │ +     ELLIPSIS,                                                │
+│   12     13 │       ADDITION_PATTERN,                                        │
+│   13     14 │       DELETION_PATTERN,                                        │
+│   14     15 │       WELL_KNOWN_SYMBOLS_PATTERN,                              │
 ├─────────────┼────────────────────────────────────────────────────────────────┤
-│     ...     │   @@ -22,8 +23,9 @@                                            │
+│     ...     │   @@ -87,6 +88,9 @@ class DiffSnippetFrame(CodeSnippetFram...  │
 ├─────────────┼────────────────────────────────────────────────────────────────┤
-│   22     23 │       config = SnippetConfig(                                  │
-│   23     24 │           file_name="command.sh",                              │
-│   24     25 │           file_path="./samples/command.sh",                    │
-│   25        │ -         language='Zsh',                                      │
-│   26        │ -         max_frame_width=terminal_width,                      │
-│          26 │ +         language='',                                         │
-│          27 │ +         max_frame_width=100,                                 │
-│          28 │ +         # max_frame_width=terminal_width,                    │
-│   27     29 │       )                                                        │
-│   28     30 │       simple_snippet = SimpleSnippet(config=config)            │
-│   29     31 │       output = simple_snippet.generate()                       │
+│   87     88 │           template_length = self.get_template_length(templa    │
+│             │   te=template)                                                 │
+│   88     89 │           content_length = template_length + len(section_ti    │
+│             │   tle + column_word)                                           │
+│   89     90 │           padding_width = self.max_frame_width - content_le    │
+│             │   ngth                                                         │
+│          91 │ +         if padding_width < 0:                                │
+│          92 │ +             section_title = section_title[: (padding_widt    │
+│             │   h - 5)] + ELLIPSIS                                           │
+│          93 │ +             padding_width = 2                                │
+│   90     94 │           padding = padding_width * SPACE                      │
+│   91     95 │                                                                │
+│   92     96 │           formatted = template.format(                         │
+├─────────────┼────────────────────────────────────────────────────────────────┤
+│     ...     │   @@ -120,14 +124,16 @@ class DiffSnippetFrame(CodeSnippet...  │
+├─────────────┼────────────────────────────────────────────────────────────────┤
+│  120    124 │                   before = SPACE * self.number_digits          │
+│  121    125 │                   after = SPACE * self.number_digits           │
+│  122    126 │                   remainder_prefix = SPACE * 2                 │
+│         127 │ +                 padding_width = max_remainder_width - len    │
+│             │   (remainder_code)                                             │
+│         128 │ +                 padding = padding_width * SPACE              │
+│  123    129 │                                                                │
+│  124    130 │                   if is_first_output:                          │
+│  125        │ -                     before = before_line_number              │
+│  126    131 │                       after = after_line_number                │
+│         132 │ +                     before = before_line_number              │
+│         133 │ +                     padding += SPACE * 2                     │
+│  127    134 │                       is_first_output = False                  │
+│         135 │ +                     remainder_prefix = ""                    │
+│  128    136 │                                                                │
+│  129        │ -                 padding_width = max_remainder_width - len    │
+│             │   (remainder_code)                                             │
+│  130        │ -                 padding = padding_width * SPACE              │
+│  131    137 │                   formatted = template.format(                 │
+│  132    138 │                       before=before,                           │
+│  133    139 │                       after=after,                             │
 ╰─────────────┴────────────────────────────────────────────────────────────────╯

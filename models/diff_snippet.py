@@ -124,14 +124,16 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                 before = SPACE * self.number_digits
                 after = SPACE * self.number_digits
                 remainder_prefix = SPACE * 2
-
-                if is_first_output:
-                    before = before_line_number
-                    after = after_line_number
-                    is_first_output = False
-
                 padding_width = max_remainder_width - len(remainder_code)
                 padding = padding_width * SPACE
+
+                if is_first_output:
+                    after = after_line_number
+                    before = before_line_number
+                    padding += SPACE * 2
+                    is_first_output = False
+                    remainder_prefix = ""
+
                 formatted = template.format(
                     before=before,
                     after=after,

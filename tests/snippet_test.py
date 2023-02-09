@@ -4,7 +4,7 @@ from models.diff_snippet import DiffSnippet
 from models.simple_snippet import SimpleSnippet
 from models.shell_snippet import ShellSnippet
 from schemas.snippet import DiffSnippetConfig, SnippetConfig, ShellSnippetConfig
-from settings import ENCODING, READ
+from settings import ENCODING, READ, SPACE
 
 
 class TestSnippet(TestCase):
@@ -92,7 +92,7 @@ class TestSnippet(TestCase):
             max_frame_width=max_frame_width,
         )
         simple_snippet = SimpleSnippet(config=config)
-        output = simple_snippet.generate(is_line_number=is_line_number)
+        output = simple_snippet.generate(prefix=SPACE, is_line_number=is_line_number)
 
         self.maxDiff = None
         self.assertEqual(output, expected_output_b)
@@ -118,6 +118,7 @@ class TestSnippet(TestCase):
 
         with open("tests/data/diff_snippet_output_b.txt", READ, encoding=ENCODING) as f:
             expected_output_b = f.read()
+        path = "tests/data/diff_snippet_for_section_title.txt"
         max_frame_width = 80
         config = DiffSnippetConfig(
             language="",
