@@ -9,6 +9,7 @@ from settings import (
     SPACE,
     EMPTY,
     NEWLINE,
+    ELLIPSIS,
     ADDITION_PATTERN,
     DELETION_PATTERN,
     WELL_KNOWN_SYMBOLS_PATTERN,
@@ -87,6 +88,9 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         template_length = self.get_template_length(template=template)
         content_length = template_length + len(section_title + column_word)
         padding_width = self.max_frame_width - content_length
+        if padding_width < 0:
+            section_title = section_title[: (padding_width - 5)] + ELLIPSIS
+            padding_width = 2
         padding = padding_width * SPACE
 
         formatted = template.format(

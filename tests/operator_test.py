@@ -1,7 +1,6 @@
 import tempfile
 from unittest import TestCase
 
-
 from libs.operator import CodeSnippetOperator
 
 

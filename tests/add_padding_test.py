@@ -1,8 +1,7 @@
 from unittest import TestCase
 
-from settings import SPACE
-
 from models.simple_snippet import SimpleSnippetFrame
+from settings import SPACE
 
 
 class TestStringMethods(TestCase):
