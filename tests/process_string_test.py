@@ -1,9 +1,9 @@
-import unittest
+from unittest import TestCase
 
 from libs.operator import CodeSnippetFrameOperator
 
 
-class TestStringMethods(unittest.TestCase):
+class TestStringMethods(TestCase):
     def test_process_string(self):
         string = "3a2bc3d"
         expected_result = "aaabbcddd"

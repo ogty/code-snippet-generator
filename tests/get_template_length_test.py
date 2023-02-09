@@ -1,9 +1,8 @@
-import unittest
-
+from unittest import TestCase
 from libs.operator import CodeSnippetFrameOperator
 
 
-class TestTemplateMethods(unittest.TestCase):
+class TestTemplateMethods(TestCase):
     def test_get_template_length(self):
         template = "This is a template with named format {name}"
         expected_length = len("This is a template with named format ")

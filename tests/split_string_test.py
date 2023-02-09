@@ -1,9 +1,9 @@
-import unittest
+from unittest import TestCase
 
 from models.diff_snippet import DiffSnippetFrame
 
 
-class TestSplitString(unittest.TestCase):
+class TestSplitString(TestCase):
     def test_split_string(self):
         string = "abcdefghijklm"
         n = 3

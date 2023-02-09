@@ -1,11 +1,11 @@
-import unittest
+from unittest import TestCase
 
 from settings import SPACE
 
 from models.simple_snippet import SimpleSnippetFrame
 
 
-class TestStringMethods(unittest.TestCase):
+class TestStringMethods(TestCase):
     def test_add_padding(self):
         # Test if padding is added correctly to string
         result = SimpleSnippetFrame.add_padding("test", n=1)

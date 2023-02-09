@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 
 from models.diff_snippet import DiffSnippet
 from models.simple_snippet import SimpleSnippet
@@ -7,7 +7,7 @@ from schemas.snippet import DiffSnippetConfig, SnippetConfig, ShellSnippetConfig
 from settings import ENCODING, READ
 
 
-class TestSnippet(unittest.TestCase):
+class TestSnippet(TestCase):
     def test_shell_snippet(self):
         with open("tests/data/shell_snippet_output.txt", READ, encoding=ENCODING) as f:
             expected_output = f.read()
@@ -56,9 +56,10 @@ class TestSnippet(unittest.TestCase):
         self.assertEqual(output, expected_output)
 
     def test_simple_sippet(self):
-        with open("tests/data/simple_snippet_output.txt", READ, encoding=ENCODING) as f:
-            expected_output = f.read()
-
+        with open(
+            "tests/data/simple_snippet_output_a.txt", READ, encoding=ENCODING
+        ) as f:
+            expected_output_a = f.read()
         path = "tests/data/simple_snippet.txt"
         language = "Markdown"
         file_name = "docs/usage.md"
@@ -76,16 +77,32 @@ class TestSnippet(unittest.TestCase):
         output = simple_snippet.generate(is_line_number=is_line_number)
 
         self.maxDiff = None
-        self.assertEqual(output, expected_output)
+        self.assertEqual(output, expected_output_a)
+
+        with open(
+            "tests/data/simple_snippet_output_b.txt", READ, encoding=ENCODING
+        ) as f:
+            expected_output_b = f.read()
+        max_frame_width = 80
+        config = SnippetConfig(
+            language=language,
+            file_name=file_name,
+            file_path=path,
+            output_path="",
+            max_frame_width=max_frame_width,
+        )
+        simple_snippet = SimpleSnippet(config=config)
+        output = simple_snippet.generate(is_line_number=is_line_number)
+
+        self.maxDiff = None
+        self.assertEqual(output, expected_output_b)
 
     def test_diff_snippet(self):
-        with open("tests/data/diff_snippet_output.txt", READ, encoding=ENCODING) as f:
-            expected_output = f.read()
-
+        with open("tests/data/diff_snippet_output_a.txt", READ, encoding=ENCODING) as f:
+            expected_output_a = f.read()
         path = "tests/data/diff_snippet.txt"
         file_name = "main.py"
         max_frame_width = 100
-
         config = DiffSnippetConfig(
             language="",
             file_name=file_name,
@@ -97,4 +114,20 @@ class TestSnippet(unittest.TestCase):
         output = diff_snippet.generate()
 
         self.maxDiff = None
-        self.assertEqual(output, expected_output)
+        self.assertEqual(output, expected_output_a)
+
+        with open("tests/data/diff_snippet_output_b.txt", READ, encoding=ENCODING) as f:
+            expected_output_b = f.read()
+        max_frame_width = 80
+        config = DiffSnippetConfig(
+            language="",
+            file_name=file_name,
+            file_path=path,
+            output_path="",
+            max_frame_width=max_frame_width,
+        )
+        diff_snippet = DiffSnippet(config=config)
+        output = diff_snippet.generate()
+
+        self.maxDiff = None
+        self.assertEqual(output, expected_output_b)

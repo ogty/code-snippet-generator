@@ -1,0 +1,35 @@
+╭─ main.py ────────────────────────────────────────────────────────────────────╮
+├──────────────────────────────────────────────────────────────────────────────┤
+│  10 ▓▓▓▓░ 10 Changes: 6 additions & 4 deletions                              │
+├─────────────┬────────────────────────────────────────────────────────────────┤
+│  ...    ... │   @@ -10,10 +10,11 @@                                          │
+├─────────────┼────────────────────────────────────────────────────────────────┤
+│   10     10 │         terminal_width = int(os.popen("tput cols", READ).read  │
+│             │   ().strip())                                                  │
+│   11     11 │                                                                │
+│   12     12 │       config = DiffSnippetConfig(                              │
+│   13        │ -         file_name="Cargo.toml",                              │
+│          13 │ +         file_name="abstract/code_snippet.py",                │
+│   14     14 │           file_path="./samples/diff.txt",                      │
+│   15     15 │           language='',                                         │
+│   16        │ -         max_frame_width=terminal_width,                      │
+│          16 │ +         max_frame_width=100,                                 │
+│          17 │ +         # max_frame_width=terminal_width,                    │
+│   17     18 │       )                                                        │
+│   18     19 │       diff_snippet = DiffSnippet(config=config)                │
+│   19     20 │       output = diff_snippet.generate()                         │
+├─────────────┼────────────────────────────────────────────────────────────────┤
+│     ...     │   @@ -22,8 +23,9 @@                                            │
+├─────────────┼────────────────────────────────────────────────────────────────┤
+│   22     23 │       config = SnippetConfig(                                  │
+│   23     24 │           file_name="command.sh",                              │
+│   24     25 │           file_path="./samples/command.sh",                    │
+│   25        │ -         language='Zsh',                                      │
+│   26        │ -         max_frame_width=terminal_width,                      │
+│          26 │ +         language='',                                         │
+│          27 │ +         max_frame_width=100,                                 │
+│          28 │ +         # max_frame_width=terminal_width,                    │
+│   27     29 │       )                                                        │
+│   28     30 │       simple_snippet = SimpleSnippet(config=config)            │
+│   29     31 │       output = simple_snippet.generate()                       │
+╰─────────────┴────────────────────────────────────────────────────────────────╯
