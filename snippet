@@ -8,16 +8,16 @@ from typing import Any, List
 import uuid
 
 from models.diff_snippet import DiffSnippet
-from models.simple_snippet import SimpleSnippet
 from models.shell_snippet import ShellSnippet
+from models.simple_snippet import SimpleSnippet
 from schemas.arg_parser import Arguments, SubCommand
 from schemas.snippet import DiffSnippetConfig, SnippetConfig, ShellSnippetConfig
-from settings import READ, NEWLINE, ENCODING, WRITE, SPACE
+from settings import READ, NEWLINE, ENCODING, WRITE, SPACE, RED, RESET
 from utils.get_current_info import get_file_name
 
 
+STATUS_PATTERN = re.compile(r"^(A|C|D|M|R|U|\?\?)\t(?P<file_path>.+)$")
 COMMIT_ID_PATTERN = re.compile(r"^commit (?P<commit_id>[a-f0-9]+)$")
-PATTERN = re.compile(r"^(A|C|D|M|R|U|\?\?)\t(?P<file_path>.+)$")
 
 
 def set_arguments(subcommand: Any, arguments: Arguments) -> Any:
@@ -49,7 +49,7 @@ def get_latest_commit_id_for_diff(target: str) -> List[str] | List[None]:
         if commit_id_matched := COMMIT_ID_PATTERN.match(log):
             commit_id = commit_id_matched.group("commit_id")
             continue
-        if matched := PATTERN.match(log):
+        if matched := STATUS_PATTERN.match(log):
             file_path = matched.group("file_path")
             if target != file_path:
                 continue
@@ -58,6 +58,97 @@ def get_latest_commit_id_for_diff(target: str) -> List[str] | List[None]:
     if len(commit_ids) == 1:
         return ["%s^" % commit_ids[0], "HEAD"]
     return commit_ids
+
+
+def diff_operator(
+    path: str, output_path: str, max_frame_width: str, arguments: Any
+) -> None:
+    file = arguments.get("file")
+    is_from_log = arguments.get("from_log")
+
+    if file is None or arguments.get("current_file"):
+        file = get_file_name(path=path)
+
+    if is_from_log:
+        commit_ids = get_latest_commit_id_for_diff(path)
+        if not commit_ids:
+            print("No diff")
+            exit(0)
+        diff = run(
+            ["git", "diff", commit_ids[0], commit_ids[1], "--", path],
+            encoding=ENCODING,
+            capture_output=True,
+        ).stdout
+
+        temporary_file_name = "%s.tmp.txt" % uuid.uuid4()
+        with open(temporary_file_name, WRITE, encoding=ENCODING) as f:
+            f.write(diff.replace("\t", SPACE * 4))
+
+    config = DiffSnippetConfig(
+        language="",
+        file_name=file,
+        file_path=(temporary_file_name if is_from_log else path),
+        output_path=output_path,
+        max_frame_width=max_frame_width,
+    )
+    diff_snippet = DiffSnippet(config=config)
+    try:
+        output = diff_snippet.generate()
+        if output_path:
+            diff_snippet.write_output(output=output, file_path=output_path)
+            exit(0)
+        print(output)
+    except Exception as error:
+        print(RED + error + RESET)
+    finally:
+        if is_from_log:
+            os.remove(temporary_file_name)
+
+
+def simple_operator(
+    path: str, output_path: str, max_frame_width: str, arguments: Any
+) -> None:
+    file = arguments.get("file")
+    if arguments.get("current_file"):
+        file = get_file_name(path=path)
+
+    config = SnippetConfig(
+        language=arguments.get("language"),
+        file_name=file,
+        file_path=path,
+        output_path=output_path,
+        max_frame_width=max_frame_width,
+    )
+    simple_snippet = SimpleSnippet(config=config)
+    output = simple_snippet.generate(
+        prefix=arguments.get("prefix"),
+        is_line_number=arguments.get("line_number"),
+        start_line=arguments.get("start_line"),
+    )
+    if output_path:
+        simple_snippet.write_output(output=output, file_path=output_path)
+        exit(0)
+    print(output)
+
+
+def shell_operator(
+    path: str, output_path: str, max_frame_width: str, arguments: Any
+) -> None:
+    config = ShellSnippetConfig(
+        language=arguments.get("language"),
+        file_path=path,
+        output_path=output_path,
+        max_frame_width=max_frame_width,
+    )
+    shell_snippet = ShellSnippet(config=config)
+    output = shell_snippet.generate(
+        prefix=arguments.get("prefix"),
+        is_command_prompt=arguments.get("command_prompt"),
+    )
+    if output_path:
+        shell_snippet.write_output(output=output, file_path=output_path)
+        exit(0)
+    print(output)
 
 
 if __name__ == "__main__":
@@ -77,8 +168,8 @@ if __name__ == "__main__":
             Arguments.path,
             Arguments.width,
             Arguments.output,
-            Arguments.current_file,
             Arguments.from_log,
+            Arguments.current_file,
         ],
     )
 
@@ -100,93 +191,31 @@ if __name__ == "__main__":
 
     arguments = parser.parse_args()
     if sub_command_name := arguments.subcommand:
-        width = arguments.width
         path = arguments.path
         output_path = arguments.output
+        max_frame_width = arguments.width if arguments.width else terminal_width
+        arguments = {argument[0]: argument[1] for argument in arguments._get_kwargs()}
 
-        max_frame_width = width if width else terminal_width
         if sub_command_name == "diff":
-            file = arguments.file
-            is_from_log = arguments.from_log
-            is_current_file = arguments.current_file
-            if file is None or is_current_file:
-                file = get_file_name(path=path)
-
-            if is_from_log:
-                commit_ids = get_latest_commit_id_for_diff(path)
-                if not commit_ids:
-                    print("No diff")
-                    exit(0)
-                diff = run(
-                    ["git", "diff", commit_ids[0], commit_ids[1], "--", path],
-                    encoding=ENCODING,
-                    capture_output=True,
-                ).stdout
-
-                temporary_file_name = "%s.tmp.txt" % uuid.uuid4()
-                with open(temporary_file_name, WRITE, encoding=ENCODING) as f:
-                    f.write(diff.replace("\t", SPACE * 4))
-
-            config = DiffSnippetConfig(
-                language="",
-                file_name=file,
-                file_path=(temporary_file_name if is_from_log else path),
+            diff_operator(
+                path=path,
+                arguments=arguments,
                 output_path=output_path,
                 max_frame_width=max_frame_width,
             )
-            diff_snippet = DiffSnippet(config=config)
-            output = diff_snippet.generate()
-            if output_path:
-                diff_snippet.write_output(output=output, file_path=output_path)
-                exit(0)
-            print(output)
-
-            if is_from_log:
-                os.remove(temporary_file_name)
         elif sub_command_name == "simple":
-            file = arguments.file
-            is_current_file = arguments.current_file
-            if is_current_file:
-                file = get_file_name(path=path)
-
-            language = arguments.language
-            prefix = arguments.prefix
-            is_line_number = arguments.line_number
-            start_line = arguments.start_line
-
-            config = SnippetConfig(
-                language=language,
-                file_name=file,
-                file_path=path,
+            simple_operator(
+                path=path,
+                arguments=arguments,
                 output_path=output_path,
                 max_frame_width=max_frame_width,
             )
-            simple_snippet = SimpleSnippet(config=config)
-            output = simple_snippet.generate(
-                prefix=prefix, is_line_number=is_line_number, start_line=start_line
-            )
-            if output_path:
-                simple_snippet.write_output(output=output, file_path=output_path)
-                exit(0)
-            print(output)
         elif sub_command_name == "shell":
-            shell_name = arguments.language
-            prefix = arguments.prefix
-            is_command_prompt = arguments.command_prompt
-
-            config = ShellSnippetConfig(
-                language=shell_name,
-                file_path=path,
+            shell_operator(
+                path=path,
+                arguments=arguments,
                 output_path=output_path,
                 max_frame_width=max_frame_width,
             )
-            shell_snippet = ShellSnippet(config=config)
-            output = shell_snippet.generate(
-                prefix=prefix, is_command_prompt=is_command_prompt
-            )
-            if output_path:
-                shell_snippet.write_output(output=output, file_path=output_path)
-                exit(0)
-            print(output)
         exit(0)
     parser.print_usage()

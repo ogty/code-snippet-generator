@@ -10,10 +10,10 @@ class Actions(Enum):
     store = "store"
     count = "count"
     append = "append"
-    append_const = "append_const"
-    store_const = "store_const"
     store_true = "store_true"
+    store_const = "store_const"
     store_false = "store_false"
+    append_const = "append_const"
 
 
 class SubCommand(TypedDict):
@@ -22,11 +22,11 @@ class SubCommand(TypedDict):
 
 
 class Argument(TypedDict):
-    flags: Tuple[Long, Short]
     type: Any
     help: str
-    required: bool
+    flags: Tuple[Long, Short]
     action: Actions
+    required: bool
 
 
 class Arguments(Enum):
@@ -36,20 +36,20 @@ class Arguments(Enum):
     output = Argument(flags=("--output", "-o"), type=str, help="")
     prefix = Argument(flags=("--prefix", "-x"), type=str, help="")
     language = Argument(flags=("--language", "-l"), type=str, help="")
+    from_log = Argument(
+        flags=("--from-log", "-g"),
+        action=Actions.store_true.value,
+    )
+    start_line = Argument(flags=("--start-line", "-s"), type=int, help="")
     line_number = Argument(
         flags=("--line-number", "-n"),
         action=Actions.store_true.value,
     )
-    start_line = Argument(flags=("--start-line", "-s"), type=int, help="")
     current_file = Argument(
         flags=("--current-file", "-c"),
         action=Actions.store_true.value,
     )
     command_prompt = Argument(
         flags=("--command-prompt", "-m"),
-        action=Actions.store_true.value,
-    )
-    from_log = Argument(
-        flags=("--from-log", "-g"),
         action=Actions.store_true.value,
     )

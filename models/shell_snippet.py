@@ -61,8 +61,8 @@ class ShellSnippetFrame(SimpleSnippetFrame):
             right_padding = right_padding[:-1]
 
         formatted = template.format(
-            left_padding=left_padding,
             shell_name=shell_name,
+            left_padding=left_padding,
             right_padding=right_padding,
         )
 

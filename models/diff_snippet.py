@@ -67,12 +67,13 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         self.lines.append(formatted)
 
     def set_section_connecting_line(self, is_start: bool = False) -> None:
-        words = [
-            BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL,
-            BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL,
-        ]
+        word = (
+            BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL
+            if is_start
+            else BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL
+        )
         formatted = self.fill_padding(
-            word=words[is_start],
+            word=word,
             name="joint_component",
             template=self.section_connecting_line_template,
             character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
@@ -121,9 +122,10 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             is_first_output = True
             remainder_codes = self.split_string(code, max_remainder_width)
             for remainder_code in remainder_codes:
-                before = SPACE * self.number_digits
                 after = SPACE * self.number_digits
+                before = SPACE * self.number_digits
                 remainder_prefix = SPACE * 2
+
                 padding_width = max_remainder_width - len(remainder_code)
                 padding = padding_width * SPACE
 
@@ -135,20 +137,20 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                     remainder_prefix = ""
 
                 formatted = template.format(
-                    before=before,
-                    after=after,
-                    prefix=remainder_prefix,
                     code=(remainder_code + padding),
+                    after=after,
+                    before=before,
+                    prefix=remainder_prefix,
                 )
                 self.lines.append(formatted)
             return
 
         padding = padding_width * SPACE
         formatted = template.format(
-            before=before_line_number,
-            after=after_line_number,
-            prefix=prefix,
             code=(code + padding),
+            after=after_line_number,
+            before=before_line_number,
+            prefix=prefix,
         )
         self.lines.append(formatted)
 
@@ -208,8 +210,8 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             self.set_code(
                 code=(SPACE + code if code[0].startswith(SPACE) else code),
                 prefix=EMPTY,
-                before_line_number=before_line_number.rjust(number_digits, SPACE),
                 after_line_number=after_line_number.rjust(number_digits, SPACE),
+                before_line_number=before_line_number.rjust(number_digits, SPACE),
             )
 
     def set_initial_line(self) -> None:
@@ -269,11 +271,13 @@ class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
             number_of_deletions=number_of_deletions,
         )
 
-        additions = (
-            f"{number_of_additions} {self.plural_form('addition', number_of_additions)}"
+        additions = "%d %s" % (
+            number_of_additions,
+            self.plural_form("addition", number_of_additions),
         )
-        deletions = (
-            f"{number_of_deletions} {self.plural_form('deletion', number_of_deletions)}"
+        deletions = "%d %s" % (
+            number_of_deletions,
+            self.plural_form("deletion", number_of_deletions),
         )
         changes = "{changes} {graph} {changes} {string_change}".format(
             graph=graph,
