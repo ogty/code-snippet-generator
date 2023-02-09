@@ -14,12 +14,12 @@ class CodeSnippetFrameOperator:
 
         return template.format(**{name: word})
 
-    @classmethod
-    def get_template_length(self, template: str) -> int:
+    @staticmethod
+    def get_template_length(template: str) -> int:
         return len(NAMED_FORMAT_PATTERN.sub(EMPTY, template))
 
-    @classmethod
-    def process_string(self, string: str) -> str:
+    @staticmethod
+    def process_string(string: str) -> str:
         result = EMPTY
         num_buffer = EMPTY
         for character in string:
@@ -35,14 +35,14 @@ class CodeSnippetFrameOperator:
             result += character * int(num_buffer)
         return result
 
-    @classmethod
-    def split_string(self, string: str, n: int) -> List[str]:
+    @staticmethod
+    def split_string(string: str, n: int) -> List[str]:
         return [string[i : i + n] for i in range(0, len(string), n)]
 
 
 class CodeSnippetOperator:
-    @classmethod
-    def get_file_content(self, file_path: str) -> List[str]:
+    @staticmethod
+    def get_file_content(file_path: str) -> List[str]:
         absolute_path = abspath(file_path)
         try:
             with open(absolute_path, READ, encoding=ENCODING) as file:
@@ -51,8 +51,8 @@ class CodeSnippetOperator:
             print(RED, error, RESET)
             exit(1)
 
-    @classmethod
-    def write_output(self, output: str, file_path: str) -> None:
+    @staticmethod
+    def write_output(output: str, file_path: str) -> None:
         absolute_path = abspath(file_path)
         with open(absolute_path, WRITE, encoding=ENCODING) as file:
             file.write(output)

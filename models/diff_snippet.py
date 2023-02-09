@@ -42,8 +42,8 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         )
         self.final_line_template = self.process_string("╰13─┴{padding}╯")
 
-    @classmethod
-    def convert_dict_values_to_int(self, data: Dict[str, str]) -> Dict[str, int]:
+    @staticmethod
+    def convert_dict_values_to_int(data: Dict[str, str]) -> Dict[str, int]:
         for key in data:
             data[key] = int(0 if data[key] is None else data[key])
         return data
@@ -236,8 +236,8 @@ class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
         self.config = config
         self.file_path = config["file_path"]
 
-    @classmethod
-    def plural_form(self, word: str, number: int) -> str:
+    @staticmethod
+    def plural_form(word: str, number: int) -> str:
         if number > 1:
             return word + "s"
         return word

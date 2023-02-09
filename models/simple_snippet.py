@@ -17,8 +17,8 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         self.code_line_template = self.process_string("│ {padding} │")
         self.final_line_template = self.process_string("╰{padding}╯")
 
-    @classmethod
-    def add_padding(self, string: str, n: int = 1) -> str:
+    @staticmethod
+    def add_padding(string: str, n: int = 1) -> str:
         padding = SPACE * n
         return padding + string + padding
 
