@@ -2,7 +2,7 @@ from settings import DARK_SHADE, MEDIUM_SHADE, LIGHT_SHADE, EMPTY
 
 
 class ChangesGraph:
-    def __init__(self, max_value: int = 5, format_width: int = 1):
+    def __init__(self, max_value: int = 5, format_width: int = 1) -> None:
         self.max_value = max_value
         self.format_width = format_width
         self.addition_character = DARK_SHADE
