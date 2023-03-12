@@ -4,7 +4,7 @@ from libs.graph import ChangesGraph
 
 
 class TestChangesGraph(TestCase):
-    def test_changes_graph(self):
+    def test_changes_graph(self) -> None:
         change_graph = ChangesGraph()
 
         self.assertEqual(

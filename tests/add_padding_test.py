@@ -5,7 +5,7 @@ from settings import SPACE
 
 
 class TestStringMethods(TestCase):
-    def test_add_padding(self):
+    def test_add_padding(self) -> None:
         # Test if padding is added correctly to string
         result = SimpleSnippetFrame.add_padding("test", n=1)
         expected = SPACE + "test" + SPACE

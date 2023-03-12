@@ -8,7 +8,7 @@ from settings import ENCODING, READ, SPACE
 
 
 class TestSnippet(TestCase):
-    def test_shell_snippet(self):
+    def test_shell_snippet(self) -> None:
         with open("tests/data/shell_snippet_output.txt", READ, encoding=ENCODING) as f:
             expected_output = f.read()
 
@@ -29,7 +29,7 @@ class TestSnippet(TestCase):
         self.maxDiff = None
         self.assertEqual(output, expected_output)
 
-    def test_command_prompt_snippet(self):
+    def test_command_prompt_snippet(self) -> None:
         with open(
             "tests/data/command_prompt_snippet_output.txt", READ, encoding=ENCODING
         ) as f:
@@ -55,7 +55,7 @@ class TestSnippet(TestCase):
         self.maxDiff = None
         self.assertEqual(output, expected_output)
 
-    def test_simple_sippet(self):
+    def test_simple_sippet(self) -> None:
         with open(
             "tests/data/simple_snippet_output_a.txt", READ, encoding=ENCODING
         ) as f:
@@ -97,7 +97,7 @@ class TestSnippet(TestCase):
         self.maxDiff = None
         self.assertEqual(output, expected_output_b)
 
-    def test_diff_snippet(self):
+    def test_diff_snippet(self) -> None:
         with open("tests/data/diff_snippet_output_a.txt", READ, encoding=ENCODING) as f:
             expected_output_a = f.read()
         path = "tests/data/diff_snippet.txt"
