@@ -1,7 +1,16 @@
 from os.path import abspath
 from typing import List
 
-from settings import ENCODING, READ, NAMED_FORMAT_PATTERN, EMPTY, RED, RESET, WRITE
+from settings import (
+    RED,
+    READ,
+    EMPTY,
+    RESET,
+    WRITE,
+    SPACE,
+    ENCODING,
+    NAMED_FORMAT_PATTERN,
+)
 
 
 class CodeSnippetFrameOperator:
@@ -46,7 +55,9 @@ class CodeSnippetOperator:
         absolute_path = abspath(file_path)
         try:
             with open(absolute_path, READ, encoding=ENCODING) as file:
-                return [line.rstrip() for line in file.readlines()]
+                return [
+                    line.rstrip().replace("\t", SPACE * 4) for line in file.readlines()
+                ]
         except FileNotFoundError as error:
             print(RED, error, RESET)
             exit(1)
