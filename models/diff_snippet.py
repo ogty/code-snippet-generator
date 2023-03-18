@@ -203,8 +203,8 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
 
         Returns:
             List[List[str]]: [[
-                before_line_number: int,
-                after_line_number : int,
+                before_line_number: str(numeric convertible) | NoneType,
+                after_line_number : str(numeric convertible) | NoneType,
                 code              : str,
             ]...]
         """
