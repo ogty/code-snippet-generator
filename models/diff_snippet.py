@@ -48,6 +48,15 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             data[key] = int(0 if data[key] is None else data[key])
         return data
 
+    def set_initial_line(self) -> None:
+        formatted = self.fill_padding(
+            word=(self.file_name + SPACE),
+            name="file_name",
+            template=self.initial_line_template,
+            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
+        )
+        self.lines.append(formatted)
+
     def set_header_bottom_line(self) -> None:
         formatted = self.fill_padding(
             word=EMPTY,
@@ -56,6 +65,24 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
         )
         self.lines.append(formatted)
+
+    def set_title(self, title: str) -> None:
+        formatted = self.fill_padding(
+            word=title,
+            name="changes_title",
+            template=self.frame_title_template,
+            character=SPACE,
+        )
+        self.lines.append(formatted)
+
+    def set_diff_sections(self, diff_sections: List[List[str]]) -> None:
+        for index, diff_section in enumerate(diff_sections):
+            is_start = True if not index else False
+
+            self.set_section_connecting_line(is_start=is_start)
+            self.set_section_title(section_title=diff_section[0], is_start=is_start)
+            self.set_section_connecting_line()
+            self.set_diff_section(diff_section)
 
     def set_final_line(self) -> None:
         formatted = self.fill_padding(
@@ -100,13 +127,23 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         self.lines.append(formatted)
 
     def set_code(
-        self, after_line_number: str, before_line_number: str, code: str, prefix: str
+        self, after_line_number: str, before_line_number: str, code: str
     ) -> None:
+        """
+        Create a template format code from each code in the section and add it
+        to the lines; if the code is larger than max_frame_width, wrap it and
+        add it to the lines.
+
+        Args:
+            after_line_number  (str): Line number after change
+            before_line_number (str): Line number before change
+            code               (str): Target Code
+        """
         template = self.code_line_template
 
         template_length = self.get_template_length(template=template)
         content_length = template_length + len(
-            after_line_number + before_line_number + prefix + code
+            after_line_number + before_line_number + code
         )
         padding_width = self.max_frame_width - content_length
         max_remainder_width = self.max_frame_width - (
@@ -150,21 +187,27 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             code=(code + padding),
             after=after_line_number,
             before=before_line_number,
-            prefix=prefix,
+            prefix=EMPTY,
         )
         self.lines.append(formatted)
 
-    def set_diff_sections(self, diff_sections: List[List[str]]) -> None:
-        for index, diff_section in enumerate(diff_sections):
-            is_start = True if not index else False
+    def parse_diff_section(self, diff_section: List[str]) -> List[List[str]]:
+        """
+        Method to create an array from each code in the Diff section,
+        containing the code number before the change, the code number
+        after the change, and the array that will be the code.
 
-            self.set_section_connecting_line(is_start=is_start)
-            self.set_section_title(section_title=diff_section[0], is_start=is_start)
-            self.set_section_connecting_line()
-            self.set_diff_section(diff_section=diff_section)
+        Args:
+            diff_section (List[str]):
+                Data received directly from set_diff_section
 
-    def set_diff_section(self, diff_section: List[str]) -> None:
-        number_digits = self.number_digits
+        Returns:
+            List[List[str]]: [[
+                before_line_number: int,
+                after_line_number : int,
+                code              : str,
+            ]...]
+        """
         section_title = diff_section[0]
         codes = diff_section[1:]
         matched = WELL_KNOWN_SYMBOLS_PATTERN.match(section_title)
@@ -191,6 +234,19 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
             diff.append([str(count_for_deletion), None, code])
             count_for_deletion += 1
 
+        return diff
+
+    def set_diff_section(self, diff_section: List[str]) -> None:
+        """Methods to process each diff section
+
+        Args:
+            diff_section (List[str]):
+                An array containing the section title and code.
+                The section title is the first index
+        """
+        number_digits = self.number_digits
+
+        diff = self.parse_diff_section(diff_section)
         for before_line_number, after_line_number, code in diff:
             before_line_number = (
                 SPACE if before_line_number is None else before_line_number
@@ -199,9 +255,9 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                 SPACE if after_line_number is None else after_line_number
             )
 
-            if not code:
+            if not code:  # processing empty lines
                 code = SPACE
-            else:
+            else:  # code formatting
                 code = (
                     code[0].replace(PLUS, PLUS + SPACE).replace(MINUS, MINUS + SPACE)
                     + code[1:]
@@ -209,28 +265,9 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
 
             self.set_code(
                 code=(SPACE + code if code[0].startswith(SPACE) else code),
-                prefix=EMPTY,
                 after_line_number=after_line_number.rjust(number_digits, SPACE),
                 before_line_number=before_line_number.rjust(number_digits, SPACE),
             )
-
-    def set_initial_line(self) -> None:
-        formatted = self.fill_padding(
-            word=(self.file_name + SPACE),
-            name="file_name",
-            template=self.initial_line_template,
-            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
-        )
-        self.lines.append(formatted)
-
-    def set_title(self, title: str) -> None:
-        formatted = self.fill_padding(
-            word=title,
-            name="changes_title",
-            template=self.frame_title_template,
-            character=SPACE,
-        )
-        self.lines.append(formatted)
 
 
 class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
