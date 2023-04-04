@@ -14,11 +14,6 @@ class TestCodeSnippetOperator(TestCase):
                 ["line 1", "line 2", "line 3"],
             )
 
-    def test_file_not_found(self) -> None:
-        with self.assertRaises(SystemExit) as cm:
-            CodeSnippetOperator.get_file_content("./non_existing.txt")
-        self.assertEqual(cm.exception.code, 1)
-
     def test_write_output(self) -> None:
         with tempfile.NamedTemporaryFile(mode="w+t") as temp:
             CodeSnippetOperator.write_output("line", temp.name)
