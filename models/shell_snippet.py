@@ -1,13 +1,15 @@
+from typing_extensions import override
+
 from abstract.code_snippet import CodeSnippetInterface
 from libs.operator import CodeSnippetOperator
 from models.simple_snippet import SimpleSnippetFrame
 from schemas.snippet import ShellSnippetConfig
-from settings import NEWLINE, SPACE, BOX_DRAWINGS_LIGHT_HORIZONTAL
+from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, NEWLINE, SPACE
 
 
 class ShellSnippetFrame(SimpleSnippetFrame):
-    def __init__(self, config: ShellSnippetConfig) -> None:
-        super().__init__(config)
+    def __init__(self, max_frame_width: int, config: ShellSnippetConfig) -> None:
+        super().__init__(max_frame_width, config)
 
         self.command_prompt_header_line_template = self.process_string(
             "│▕  ▭ {tab} ×  ▏ +  {padding}  -   □   ×  │"
@@ -18,6 +20,7 @@ class ShellSnippetFrame(SimpleSnippetFrame):
         self.header_buttons_width = 5
         self.initial_line_template = "╭─{padding}─╮"
 
+    @override
     def set_initial_line(self) -> None:
         template = self.initial_line_template
 
@@ -70,17 +73,19 @@ class ShellSnippetFrame(SimpleSnippetFrame):
 
 
 class ShellSnippet(CodeSnippetOperator, CodeSnippetInterface):
-    def __init__(self, config: ShellSnippetConfig) -> None:
+    def __init__(self, max_frame_width: int, config: ShellSnippetConfig) -> None:
+        self.max_frame_width = max_frame_width
         self.config = config
         self.file_path = config["file_path"]
 
+    @override
     def generate(self, prefix: str = "", is_command_prompt: bool = False) -> str:
         file_content = self.get_file_content(self.file_path)
 
         if prefix:
-            file_content = list(map(lambda l: prefix + l, file_content))
+            file_content = list(map(lambda line: prefix + line, file_content))
 
-        frame = ShellSnippetFrame(config=self.config)
+        frame = ShellSnippetFrame(self.max_frame_width, self.config)
         frame.set_initial_line()
         if is_command_prompt:
             frame.set_command_prompt_header_line()

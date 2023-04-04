@@ -1,31 +1,34 @@
-from typing import List, Dict
+from typing import Any, Dict, List, Optional, Union
 
-from abstract.code_snippet import CodeSnippetInterface, CodeSnippetFrameInterface
+from typing_extensions import override
+
+from abstract.code_snippet import CodeSnippetFrameInterface, CodeSnippetInterface
 from libs.graph import ChangesGraph
-from libs.operator import CodeSnippetOperator, CodeSnippetFrameOperator
+from libs.operator import CodeSnippetFrameOperator, CodeSnippetOperator
+from schemas.snippet import Changes, DiffSnippetConfig
 from settings import (
-    PLUS,
-    MINUS,
-    SPACE,
-    EMPTY,
-    NEWLINE,
-    ELLIPSIS,
     ADDITION_PATTERN,
-    DELETION_PATTERN,
-    WELL_KNOWN_SYMBOLS_PATTERN,
-    BOX_DRAWINGS_LIGHT_HORIZONTAL,
     BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL,
+    BOX_DRAWINGS_LIGHT_HORIZONTAL,
     BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL,
+    DELETION_PATTERN,
+    ELLIPSIS,
+    EMPTY,
+    MINUS,
+    NEWLINE,
+    PLUS,
+    SPACE,
+    WELL_KNOWN_SYMBOLS_PATTERN,
 )
-from schemas.snippet import DiffSnippetConfig, Changes
 
 
 class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
-    def __init__(self, config: DiffSnippetConfig) -> None:
-        self.lines = []
+    def __init__(self, max_frame_width: int, config: DiffSnippetConfig) -> None:
+        super().__init__(max_frame_width)
+
+        self.lines: List[str] = []
 
         self.file_name = config["file_name"]
-        self.max_frame_width = config["max_frame_width"]
         self.number_digits = config.get("number_digits", 3)
 
         self.initial_line_template = "╭─ {file_name}─╮"
@@ -42,12 +45,7 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         )
         self.final_line_template = self.process_string("╰13─┴{padding}╯")
 
-    @staticmethod
-    def convert_dict_values_to_int(data: Dict[str, str]) -> Dict[str, int]:
-        for key in data:
-            data[key] = int(0 if data[key] is None else data[key])
-        return data
-
+    @override
     def set_initial_line(self) -> None:
         formatted = self.fill_padding(
             word=(self.file_name + SPACE),
@@ -57,75 +55,7 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         )
         self.lines.append(formatted)
 
-    def set_header_bottom_line(self) -> None:
-        formatted = self.fill_padding(
-            word=EMPTY,
-            name="padding",
-            template=self.header_bottom_line_template,
-            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
-        )
-        self.lines.append(formatted)
-
-    def set_title(self, title: str) -> None:
-        formatted = self.fill_padding(
-            word=title,
-            name="changes_title",
-            template=self.frame_title_template,
-            character=SPACE,
-        )
-        self.lines.append(formatted)
-
-    def set_diff_sections(self, diff_sections: List[List[str]]) -> None:
-        for index, diff_section in enumerate(diff_sections):
-            is_start = True if not index else False
-
-            self.set_section_connecting_line(is_start=is_start)
-            self.set_section_title(section_title=diff_section[0], is_start=is_start)
-            self.set_section_connecting_line()
-            self.set_diff_section(diff_section)
-
-    def set_final_line(self) -> None:
-        formatted = self.fill_padding(
-            word=EMPTY,
-            name="padding",
-            template=self.final_line_template,
-            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
-        )
-        self.lines.append(formatted)
-
-    def set_section_connecting_line(self, is_start: bool = False) -> None:
-        word = (
-            BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL
-            if is_start
-            else BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL
-        )
-        formatted = self.fill_padding(
-            word=word,
-            name="joint_component",
-            template=self.section_connecting_line_template,
-            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
-        )
-        self.lines.append(formatted)
-
-    def set_section_title(self, section_title: str, is_start: bool = False) -> None:
-        template = self.section_title_template
-        column_word = (
-            self.process_string("3.4 3.") if is_start else self.process_string("3 3.4 ")
-        )
-
-        template_length = self.get_template_length(template=template)
-        content_length = template_length + len(section_title + column_word)
-        padding_width = self.max_frame_width - content_length
-        if padding_width < 0:
-            section_title = section_title[: (padding_width - 5)] + ELLIPSIS
-            padding_width = 2
-        padding = padding_width * SPACE
-
-        formatted = template.format(
-            section_title=(section_title + padding), column_word=column_word
-        )
-        self.lines.append(formatted)
-
+    @override
     def set_code(
         self, after_line_number: str, before_line_number: str, code: str
     ) -> None:
@@ -191,7 +121,77 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         )
         self.lines.append(formatted)
 
-    def parse_diff_section(self, diff_section: List[str]) -> List[List[str]]:
+    @override
+    def set_final_line(self) -> None:
+        formatted = self.fill_padding(
+            word=EMPTY,
+            name="padding",
+            template=self.final_line_template,
+            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
+        )
+        self.lines.append(formatted)
+
+    def set_header_bottom_line(self) -> None:
+        formatted = self.fill_padding(
+            word=EMPTY,
+            name="padding",
+            template=self.header_bottom_line_template,
+            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
+        )
+        self.lines.append(formatted)
+
+    def set_title(self, title: str) -> None:
+        formatted = self.fill_padding(
+            word=title,
+            name="changes_title",
+            template=self.frame_title_template,
+            character=SPACE,
+        )
+        self.lines.append(formatted)
+
+    def set_diff_sections(self, diff_sections: List[List[str]]) -> None:
+        for index, diff_section in enumerate(diff_sections):
+            is_start = True if not index else False
+
+            self.set_section_connecting_line(is_start=is_start)
+            self.set_section_title(section_title=diff_section[0], is_start=is_start)
+            self.set_section_connecting_line()
+            self.set_diff_section(diff_section)
+
+    def set_section_connecting_line(self, is_start: bool = False) -> None:
+        word = (
+            BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL
+            if is_start
+            else BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL
+        )
+        formatted = self.fill_padding(
+            word=word,
+            name="joint_component",
+            template=self.section_connecting_line_template,
+            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
+        )
+        self.lines.append(formatted)
+
+    def set_section_title(self, section_title: str, is_start: bool = False) -> None:
+        template = self.section_title_template
+        column_word = (
+            self.process_string("3.4 3.") if is_start else self.process_string("3 3.4 ")
+        )
+
+        template_length = self.get_template_length(template=template)
+        content_length = template_length + len(section_title + column_word)
+        padding_width = self.max_frame_width - content_length
+        if padding_width < 0:
+            section_title = section_title[: (padding_width - 5)] + ELLIPSIS
+            padding_width = 2
+        padding = padding_width * SPACE
+
+        formatted = template.format(
+            section_title=(section_title + padding), column_word=column_word
+        )
+        self.lines.append(formatted)
+
+    def parse_diff_section(self, diff_section: List[str]) -> List[List[Optional[str]]]:
         """
         Method to create an array from each code in the Diff section,
         containing the code number before the change, the code number
@@ -211,14 +211,13 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         section_title = diff_section[0]
         codes = diff_section[1:]
         matched = WELL_KNOWN_SYMBOLS_PATTERN.match(section_title)
+        if not matched:
+            raise ValueError("Invalid section title")
         start_end = self.convert_dict_values_to_int(matched.groupdict())
 
-        addition_start = start_end["addition_start"]
-        deletion_start = start_end["deletion_start"]
-
-        diff = []
-        count_for_deletion = deletion_start
-        count_for_addition = addition_start
+        diff: List[List[str | None]] = []
+        count_for_deletion = int(start_end["deletion_start"])
+        count_for_addition = int(start_end["addition_start"])
         for code in codes:
             if not code or code[0] == SPACE:
                 diff.append([str(count_for_deletion), str(count_for_addition), code])
@@ -269,17 +268,50 @@ class DiffSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
                 before_line_number=before_line_number.rjust(number_digits, SPACE),
             )
 
+    @staticmethod
+    def convert_dict_values_to_int(
+        data: Union[Dict[str, Union[str, Any]], Any]
+    ) -> Union[Dict[str, Union[str, Any]], Any]:
+        for key in data:
+            data[key] = int(0 if data[key] is None else data[key])
+        return data
+
 
 class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
-    def __init__(self, config: DiffSnippetConfig) -> None:
+    def __init__(self, max_frame_width: int, config: DiffSnippetConfig) -> None:
+        self.max_frame_width = max_frame_width
         self.config = config
         self.file_path = config["file_path"]
 
-    @staticmethod
-    def plural_form(word: str, number: int) -> str:
-        if number > 1:
-            return word + "s"
-        return word
+    @override
+    def generate(self) -> str:
+        file_content = self.get_file_content(self.file_path)
+        diff_section_start_indexes = [
+            index
+            for index, line in enumerate(file_content)
+            if WELL_KNOWN_SYMBOLS_PATTERN.match(line)
+        ]
+        changes = self.count_changes(file_content[diff_section_start_indexes[0] :])
+
+        diff_sections = []
+        number_of_diff_sections = len(diff_section_start_indexes)
+        for index, section_start_index in enumerate(
+            diff_section_start_indexes, start=1
+        ):
+            if number_of_diff_sections == index:
+                diff_sections.append(file_content[section_start_index:])
+                break
+            next_section_index = diff_section_start_indexes[index]
+            diff_sections.append(file_content[section_start_index:next_section_index])
+
+        frame = DiffSnippetFrame(self.max_frame_width, self.config)
+        frame.set_initial_line()
+        frame.set_header_bottom_line()
+        frame.set_title(self.format_title(changes))
+        frame.set_diff_sections(diff_sections)
+        frame.set_final_line()
+
+        return NEWLINE.join(frame.lines)
 
     def count_changes(self, diff_sections_only: List[str]) -> Changes:
         additions = 0
@@ -329,31 +361,8 @@ class DiffSnippet(CodeSnippetOperator, CodeSnippetInterface):
         )
         return title
 
-    def generate(self) -> str:
-        file_content = self.get_file_content(self.file_path)
-        diff_section_start_indexes = [
-            index
-            for index, line in enumerate(file_content)
-            if WELL_KNOWN_SYMBOLS_PATTERN.match(line)
-        ]
-        changes = self.count_changes(file_content[diff_section_start_indexes[0] :])
-
-        diff_sections = []
-        number_of_diff_sections = len(diff_section_start_indexes)
-        for index, section_start_index in enumerate(
-            diff_section_start_indexes, start=1
-        ):
-            if number_of_diff_sections == index:
-                diff_sections.append(file_content[section_start_index:])
-                break
-            next_section_index = diff_section_start_indexes[index]
-            diff_sections.append(file_content[section_start_index:next_section_index])
-
-        frame = DiffSnippetFrame(self.config)
-        frame.set_initial_line()
-        frame.set_header_bottom_line()
-        frame.set_title(self.format_title(changes))
-        frame.set_diff_sections(diff_sections)
-        frame.set_final_line()
-
-        return NEWLINE.join(frame.lines)
+    @staticmethod
+    def plural_form(word: str, number: int) -> str:
+        if number > 1:
+            return word + "s"
+        return word

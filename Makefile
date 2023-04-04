@@ -3,10 +3,19 @@ include .env
 max_frame_width := 92
 shell_name      := zsh
 
+format:
+	@black .
+
+lint:
+	@ruff .
+
+isort:
+	@isort .
+
 setup:
 	@chmod +x ./snippet
 
-test:
+test: isort format lint
 	@python3 -m unittest discover -s ./tests -p "*_test.py"
 
 clean-pychache:

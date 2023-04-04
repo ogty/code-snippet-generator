@@ -1,6 +1,5 @@
 from enum import Enum
-from typing import TypedDict, Any, Tuple
-
+from typing import Any, Tuple, TypedDict
 
 Long = str
 Short = str

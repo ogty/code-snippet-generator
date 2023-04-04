@@ -1,27 +1,28 @@
+from typing import List
+
+from typing_extensions import override
+
 from abstract.code_snippet import CodeSnippetFrameInterface, CodeSnippetInterface
-from libs.operator import CodeSnippetOperator, CodeSnippetFrameOperator
+from libs.operator import CodeSnippetFrameOperator, CodeSnippetOperator
 from schemas.snippet import SnippetConfig
-from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, SPACE, NEWLINE, EMPTY
+from settings import BOX_DRAWINGS_LIGHT_HORIZONTAL, EMPTY, NEWLINE, SPACE
 
 
 class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
-    def __init__(self, config: SnippetConfig) -> None:
-        self.lines = []
+    def __init__(self, max_frame_width: int, config: SnippetConfig) -> None:
+        super().__init__(max_frame_width)
+
+        self.lines: List[str] = []
 
         self.language = config["language"]
         self.file_name = config.get("file_name", "")
-        self.max_frame_width = config["max_frame_width"]
 
         self.initial_line_template = self.process_string("╭─{language}─{file_name}─╮")
         self.header_bottom_line_template = self.process_string("├{padding}┤")
         self.code_line_template = self.process_string("│ {padding} │")
         self.final_line_template = self.process_string("╰{padding}╯")
 
-    @staticmethod
-    def add_padding(string: str, n: int = 1) -> str:
-        padding = SPACE * n
-        return padding + string + padding
-
+    @override
     def set_initial_line(self) -> None:
         template = self.initial_line_template
         language = self.add_padding(self.language) if self.language else EMPTY
@@ -38,6 +39,7 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         )
         self.lines.append(formatted)
 
+    @override
     def set_code(self, code: str) -> None:
         template = self.code_line_template
 
@@ -47,12 +49,8 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         max_remainder_width = self.max_frame_width - template_length
 
         if padding_width < 0:
-            is_first_output = True
             remainder_codes = self.split_string(code, max_remainder_width)
             for remainder_code in remainder_codes:
-                if is_first_output:
-                    is_first_output = False
-
                 padding_width = max_remainder_width - len(remainder_code)
                 padding = padding_width * SPACE
                 formatted = template.format(
@@ -67,15 +65,7 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         )
         self.lines.append(formatted)
 
-    def set_header_bottom_line(self) -> None:
-        formatted = self.fill_padding(
-            word=EMPTY,
-            name="padding",
-            template=self.header_bottom_line_template,
-            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
-        )
-        self.lines.append(formatted)
-
+    @override
     def set_final_line(self) -> None:
         formatted = self.fill_padding(
             word=EMPTY,
@@ -85,17 +75,31 @@ class SimpleSnippetFrame(CodeSnippetFrameOperator, CodeSnippetFrameInterface):
         )
         self.lines.append(formatted)
 
+    def set_header_bottom_line(self) -> None:
+        formatted = self.fill_padding(
+            word=EMPTY,
+            name="padding",
+            template=self.header_bottom_line_template,
+            character=BOX_DRAWINGS_LIGHT_HORIZONTAL,
+        )
+        self.lines.append(formatted)
+
+    @staticmethod
+    def add_padding(string: str, n: int = 1) -> str:
+        padding = SPACE * n
+        return padding + string + padding
+
 
 class SimpleSnippet(CodeSnippetOperator, CodeSnippetInterface):
-    def __init__(self, config: SnippetConfig) -> None:
+    def __init__(self, max_frame_width: int, config: SnippetConfig) -> None:
+        self.max_frame_width = max_frame_width
         self.config = config
         self.file_path = config["file_path"]
 
+    @override
     def generate(
-        self, prefix: str = "", is_line_number: bool = False, start_line: int = None
+        self, prefix: str = "", is_line_number: bool = False, start_line: int = 1
     ) -> str:
-        start_line = start_line or 1
-
         file_content = self.get_file_content(self.file_path)
         file_content_length = len(file_content)
         number_digits = len(str(file_content_length))
@@ -110,9 +114,11 @@ class SimpleSnippet(CodeSnippetOperator, CodeSnippetInterface):
                 )
             )
         if prefix:
-            file_content = list(map(lambda l: prefix + l, file_content))
+            file_content = list(map(lambda line: prefix + line, file_content))
 
-        frame = SimpleSnippetFrame(config=self.config)
+        frame = SimpleSnippetFrame(
+            max_frame_width=self.max_frame_width, config=self.config
+        )
         frame.set_initial_line()
         frame.set_header_bottom_line()
         for code in file_content:

@@ -2,6 +2,7 @@ from typing import TypedDict
 
 
 class Changes(TypedDict):
+    changes: int
     additions: int
     deletions: int
 
@@ -11,7 +12,6 @@ class SnippetConfig(TypedDict):
     file_name: str
     file_path: str
     output_path: str
-    max_frame_width: int
 
 
 class DiffSnippetConfig(SnippetConfig, total=False):

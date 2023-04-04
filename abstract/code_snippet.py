@@ -1,21 +1,18 @@
-from abc import ABCMeta, abstractclassmethod
+from abc import ABCMeta
+from typing import Any
 
 
 class CodeSnippetFrameInterface(metaclass=ABCMeta):
-    @abstractclassmethod
     def set_initial_line(self) -> None:
         raise NotImplementedError
 
-    @abstractclassmethod
-    def set_code(self) -> None:
+    def set_code(self, *args: Any, **kwargs: Any) -> None:
         raise NotImplementedError
 
-    @abstractclassmethod
     def set_final_line(self) -> None:
         raise NotImplementedError
 
 
 class CodeSnippetInterface(metaclass=ABCMeta):
-    @abstractclassmethod
-    def generate(self) -> str:
+    def generate(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError

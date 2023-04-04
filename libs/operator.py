@@ -2,18 +2,21 @@ from os.path import abspath
 from typing import List
 
 from settings import (
-    RED,
-    READ,
     EMPTY,
-    RESET,
-    WRITE,
-    SPACE,
     ENCODING,
     NAMED_FORMAT_PATTERN,
+    READ,
+    RED,
+    RESET,
+    SPACE,
+    WRITE,
 )
 
 
 class CodeSnippetFrameOperator:
+    def __init__(self, max_frame_width: int) -> None:
+        self.max_frame_width = max_frame_width
+
     def fill_padding(self, word: str, template: str, character: str, name: str) -> str:
         template_length = self.get_template_length(template=template)
         content_length = template_length + len(word)

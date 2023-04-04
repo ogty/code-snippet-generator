@@ -1,4 +1,4 @@
-from settings import DARK_SHADE, MEDIUM_SHADE, LIGHT_SHADE, EMPTY
+from settings import DARK_SHADE, EMPTY, LIGHT_SHADE, MEDIUM_SHADE
 
 
 class ChangesGraph:
